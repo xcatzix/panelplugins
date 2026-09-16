@@ -46,11 +46,12 @@ Item {
             Rectangle {
                 id: progress
 
-                color: foregroundColor
+                // color: foregroundColor
+                color: "#9effca"
                 height: horizontal ? parent.height : parent.height * (player.songPosition / player.songLength)
                 width: horizontal ? parent.width * (player.songPosition / player.songLength) : parent.width
                 visible: plasmoid.configuration.mediaProgressInPanel
-                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 0.15 : 0.07
+                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1 : 0.68
             }
 
         }
@@ -221,20 +222,6 @@ Item {
             rows: horizontal ? 1 : grid.children.length
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
-            // 仿 Full 页面：SoundBars 音频跳动条放在播放控件最左边
-            SoundBars {
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                Layout.preferredHeight: barHeight
-                Layout.preferredWidth: barCount * (barWidth + barSpacing) - barSpacing
-                playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
-                color: compact.foregroundColor
-                barCount: 5
-                barWidth: 2.5
-                barHeight: compact.controlsSize * 0.8
-                barSpacing: 3
-                onClicked: player.playPause()
-            }
-
             // SoundBars 音频跳动条(尺寸随面板厚度自适应)
             SoundBars {
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
@@ -242,11 +229,10 @@ Item {
                 Layout.preferredWidth: barCount * (barWidth + barSpacing) - barSpacing
                 playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
                 color: compact.foregroundColor
-                barCount: 5
-                barWidth: 2.5
-                barHeight: compact.widgetThickness * 0.6
-                barSpacing: 3
-                onClicked: player.playPause()
+                barCount: 6
+                barWidth: 2
+                barHeight: compact.widgetThickness * 1.8
+                barSpacing: 2
             }
 
         }
