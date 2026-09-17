@@ -77,8 +77,16 @@ Item {
 	Layout.minimumHeight: column.implicitHeight
 	Layout.maximumHeight: column.implicitHeight
 	// Store the original theme colors (root keeps default Kirigami.Theme.inherit: true)
-	readonly property color _originalTextColor: Kirigami.Theme.textColor
-	readonly property color _originalHighlightColor: Kirigami.Theme.highlightColor
+	    readonly property color _originalTextColor: Kirigami.Theme.textColor
+	    readonly property color _originalHighlightColor: Kirigami.Theme.highlightColor
+	
+	    // ==================== 自选照片：显示源头选择与固定宽度 ====================
+	    // 播放媒体时可选择显示“媒体照片(artUrl)”或“自选照片(文件夹)”
+	    readonly property bool customPhotoActive: player.customPhotoEnabled && player.photoFolderReady
+	    readonly property int photoFixedWidth: plasmoid.configuration.fullViewPhotoFixedWidth
+	    readonly property string displayImageSource: customPhotoActive ? player.currentPhotoUrl : player.artUrl
+	    // 自选照片时缩略图使用固定宽度，并居中显示
+	    readonly property bool photoFixedWidthMode: customPhotoActive && photoFixedWidth > 0
 	
 	Item {
 		visible: albumCoverBackground && thumbnailVisible
@@ -95,7 +103,7 @@ Item {
 			width: parent.width
 			fillMode: Image.PreserveAspectCrop
 			placeholderSource: albumPlaceholder
-			imageSource: player.artUrl
+			imageSource: root.displayImageSource
 			onStatusChanged: {
 				if (status === Image.Ready) {
 					imageColors.update()
@@ -193,7 +201,10 @@ Item {
 		Rectangle {
 			id: thumbnailContainer
 			visible: thumbnailVisible
-			Layout.fillWidth: true
+           Layout.fillWidth: !root.photoFixedWidthMode
+           Layout.preferredWidth: root.photoFixedWidthMode ? root.photoFixedWidth : -1
+           Layout.maximumWidth: root.photoFixedWidthMode ? root.photoFixedWidth : -1
+           Layout.alignment: root.photoFixedWidthMode ? Qt.AlignHCenter : Qt.AlignTop
 			Layout.margins: 10
 			// Use the actual image aspect ratio, fallback to square if not loaded yet
 			readonly property real imageRatio: albumArtNormal.implicitWidth > 0 && albumArtNormal.implicitHeight > 0
@@ -222,7 +233,7 @@ Item {
 				anchors.fill: parent
 				fillMode: Image.PreserveAspectFit
 				placeholderSource: albumPlaceholder
-				imageSource: player.artUrl
+               imageSource: root.displayImageSource
 				layer.enabled: root.fullAlbumCoverRounded && root.albumCoverRadius > 0
 				layer.effect: OpacityMask {
 					maskSource: Item {
@@ -235,6 +246,25 @@ Item {
 					}
 				}
 			}
+       // 自选照片：前后翻看文件夹内照片
+         PlasmaComponents3.Button {
+               anchors.left: parent.left
+               anchors.verticalCenter: parent.verticalCenter
+               visible: root.customPhotoActive
+               icon.name: "go-previous"
+               flat: true
+               enabled: player.photoFolderReady
+               onClicked: player.previousPhoto()
+               }
+               PlasmaComponents3.Button {
+               anchors.right: parent.right
+               anchors.verticalCenter: parent.verticalCenter
+                   visible: root.customPhotoActive
+                   icon.name: "go-next"
+                   flat: true
+                   enabled: player.photoFolderReady
+                    onClicked: player.nextPhoto()
+				}
 		}
 		
 		SongAndArtistText {

@@ -16,6 +16,7 @@ KCM.SimpleKCM {
     property alias cfg_albumCoverRadius: albumCoverRadius.value
     property alias cfg_songTextInPanel: songTextInPanel.checked
     property alias cfg_iconInPanel: iconInPanel.checked
+    property alias cfg_soundbarsInPanel: soundbarsInPanel.checked
     property alias cfg_maxSongWidthInPanel: maxSongWidthInPanel.value
     property alias cfg_songTextFixedWidth: songTextFixedWidth.value
     property alias cfg_useSongTextFixedWidth: useSongTextFixedWidth.checked
@@ -104,6 +105,11 @@ KCM.SimpleKCM {
         CheckBox {
             id: songTextInPanel
             Kirigami.FormData.label: i18n("Show song text")
+        }
+
+        CheckBox {
+            id: soundbarsInPanel
+            Kirigami.FormData.label: i18n("Show sound bars")
         }
 
         Kirigami.Separator {

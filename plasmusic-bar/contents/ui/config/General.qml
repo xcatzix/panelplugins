@@ -16,6 +16,9 @@ KCM.SimpleKCM {
     property alias cfg_customFont: fontDialog.fontChosen
     property alias cfg_noMediaText: noMediaText.text
     property alias cfg_showWhenNoMedia: showWhenNoMedia.checked
+    property alias cfg_customPhotoEnabled: customPhotoEnabled.checked
+    property alias cfg_photoFolder: photoFolderDialog.value
+    property alias cfg_fullViewPhotoFixedWidth: photoFixedWidth.value
 
     property var preferredIdentities: {
         return cfg_preferredPlayerIdentity ? cfg_preferredPlayerIdentity.split(',').filter(x => x) : []
@@ -154,6 +157,63 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Text displayed when no media found:")
             enabled: showWhenNoMedia.checked
         }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Self-selected photo")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Use self-selected photos:")
+            CheckBox {
+                id: customPhotoEnabled
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: i18n(
+                    "When enabled, compact icon and full viewer show the photo from the chosen folder; otherwise the playing media artwork is shown. You can flip through the folder photos with the previous/next buttons in the full viewer."
+                )
+            }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Photo folder:")
+            enabled: customPhotoEnabled.checked
+
+            Button {
+                text: i18n("Choose folder…")
+                icon.name: "document-open-folder"
+                onClicked: {
+                    photoFolderDialog.open()
+                }
+            }
+
+            Button {
+                text: i18n("Clear")
+                icon.name: "edit-delete"
+                visible: photoFolderDialog.value
+                onClicked: {
+                    photoFolderDialog.value = ""
+                }
+            }
+        }
+
+        Label {
+            Layout.fillWidth: true
+            visible: photoFolderDialog.value && customPhotoEnabled.checked
+            elide: Text.ElideMiddle
+            wrapMode: Text.WrapAnywhere
+            text: photoFolderDialog.value
+            textFormat: Text.PlainText
+        }
+
+        SpinBox {
+            id: photoFixedWidth
+            from: 0
+            to: 1000
+            stepSize: 10
+            Kirigami.FormData.label: i18n("Full view photo fixed width:")
+            enabled: customPhotoEnabled.checked
+        }
     }
 
     QtDialogs.FontDialog {
@@ -164,6 +224,17 @@ KCM.SimpleKCM {
         property font fontChosen: Qt.font()
         onAccepted: {
             fontChosen = selectedFont
+        }
+    }
+
+    QtDialogs.FolderDialog {
+        id: photoFolderDialog
+        title: i18n("Choose a photo folder")
+        modality: Qt.WindowModal
+        parentWindow: generalConfigPage.Window.window
+        property var value: null
+        onAccepted: {
+            value = selectedFolder
         }
     }
 
