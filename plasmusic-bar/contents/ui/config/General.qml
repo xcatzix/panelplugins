@@ -14,10 +14,9 @@ KCM.SimpleKCM {
     property var cfg_preferredPlayerIdentity
     property alias cfg_useCustomFont: customFontCheckbox.checked
     property alias cfg_customFont: fontDialog.fontChosen
+    property alias cfg_volumeStep: volumeStepSpinbox.value
     property alias cfg_noMediaText: noMediaText.text
     property alias cfg_showWhenNoMedia: showWhenNoMedia.checked
-    property alias cfg_showCustomTextWithMedia: showCustomTextWithMedia.checked
-    property alias cfg_usePlasMtextFile: usePlasMtextFile.checked
 
     property var preferredIdentities: {
         return cfg_preferredPlayerIdentity ? cfg_preferredPlayerIdentity.split(',').filter(x => x) : []
@@ -153,20 +152,23 @@ KCM.SimpleKCM {
 
         TextField {
             id: noMediaText
-            Kirigami.FormData.label: i18n("Display text:")
-            enabled: !usePlasMtextFile.checked
+            Kirigami.FormData.label: i18n("Text displayed when no media found:")
+            enabled: showWhenNoMedia.checked
         }
 
-        CheckBox {
-            id: usePlasMtextFile
-            Kirigami.FormData.label: i18n("Read text from ~/.cache/plasMusic/plasMtext.txt")
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Controls behaviour")
         }
 
-        CheckBox {
-            id: showCustomTextWithMedia
-            Kirigami.FormData.label: i18n("Show this text while media is playing")
+        SpinBox {
+            id: volumeStepSpinbox
+            Kirigami.FormData.label: i18n("Volume step:")
+            from: 1
+            to: 100
+            textFromValue: function(text) { return text + "%"; }
+            valueFromText: function(value) { return parseInt(value); }
         }
-
     }
 
     QtDialogs.FontDialog {

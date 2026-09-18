@@ -22,9 +22,13 @@ Item {
     visible: type === PanelIcon.Type.Icon || imageReady || (fallbackToIconWhenImageNotAvailable && !imageReady)
 
     implicitHeight: size
-    implicitWidth: size
-    width: size
-    height: size
+    implicitWidth: {
+        if (type === PanelIcon.Type.Image && imageReady && imageComponent.implicitHeight > 0) {
+            return size * (imageComponent.implicitWidth / imageComponent.implicitHeight);
+        } else {
+            return size;
+        }
+    }
 
     Kirigami.Icon {
         visible: type === PanelIcon.Type.Icon || (fallbackToIconWhenImageNotAvailable && !imageReady)

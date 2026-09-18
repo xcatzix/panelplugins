@@ -5,25 +5,18 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
-import "./components"
 
 
 PlasmoidItem {
     id: widget
 
-    Plasmoid.status: (showWhenNoMedia || photoFolderSet || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+    Plasmoid.status: (showWhenNoMedia || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
     Plasmoid.backgroundHints: plasmoid.configuration.desktopWidgetBg
 
     readonly property int formFactor: Plasmoid.formFactor
     readonly property int location: Plasmoid.location
     readonly property bool showWhenNoMedia: plasmoid.configuration.showWhenNoMedia
-    readonly property bool photoFolderSet: plasmoid.configuration.photoFolder.length > 0
-    readonly property string displayText: displayTextProvider.text
-    readonly property bool showDisplayTextWithMedia: plasmoid.configuration.showCustomTextWithMedia
-
-    DisplayTextProvider {
-        id: displayTextProvider
-    }
+    readonly property bool hidePlayerControlBinds: plasmoid.configuration.hidePlayerControlBindsInHoverTooltip
 
     readonly property font baseFont: plasmoid.configuration.useCustomFont ? plasmoid.configuration.customFont : Kirigami.Theme.defaultFont
 
@@ -32,18 +25,16 @@ PlasmoidItem {
     toolTipSubText: {
         let text = player.artists ? i18nc("%1 is the media artist/author and %2 is the player name", "by %1 (%2)", player.artists, player.identity)
             : i18nc("%1 is the player name", "%1", player.identity)
-        if (player.canRaise) {
-            text += "\n" + i18n("Ctrl+Click to bring player to the front")
+        if(!hidePlayerControlBinds){
+            text += "\n" + (player.playbackStatus === Mpris.PlaybackStatus.Playing ? i18n("Middle-click to pause") : i18n("Middle-click to play"))
+            text += "\n" + i18n("Scroll to adjust volume")
+            text += "\n" + (player.canRaise ? i18n("Ctrl+Click to bring player to the front") : i18n("This player can't be raised"))
         }
         return text
     }
 
     onShowWhenNoMediaChanged: {
-        Plasmoid.status = (showWhenNoMedia || photoFolderSet || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
-    }
-
-    onPhotoFolderSetChanged: {
-        Plasmoid.status = (showWhenNoMedia || photoFolderSet || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+        Plasmoid.status = (showWhenNoMedia || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
     }
 
     Player {
@@ -57,7 +48,7 @@ PlasmoidItem {
             return null
         }
         onReadyChanged: {
-            Plasmoid.status = (showWhenNoMedia || photoFolderSet || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+            Plasmoid.status = (showWhenNoMedia || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
             console.debug(`Player ready changed: ${player.ready} -> plasmoid status changed: ${Plasmoid.status}`)
         }
 

@@ -32,8 +32,7 @@ Item {
     property alias truncateStyle: firstLine.truncateStyle
     property alias textColor: firstLine.color
 
-    property string noMediaText: widget.displayText
-    property bool showCustomTextWithMedia: plasmoid.configuration.showCustomTextWithMedia
+    property string noMediaText: plasmoid.configuration.noMediaText
 
     property int titlePosition: SongAndArtistText.TextPosition.FirstLine
     property int artistsPosition: SongAndArtistText.TextPosition.FirstLine
@@ -87,9 +86,7 @@ Item {
 
             font: finalSecondText.length > 0 ? root.boldTextFont : root.textFont;
             maxWidth: root.maxWidth !== undefined ? root.maxWidth : root.width
-            text: root.finalFirstText || root.finalSecondText
-                  ? (root.showCustomTextWithMedia ? root.noMediaText : root.finalFirstText)
-                  : root.noMediaText
+            text: root.finalFirstText || root.finalSecondText ? root.finalFirstText : noMediaText
         }
 
         // second row of text
