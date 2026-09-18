@@ -14,8 +14,10 @@ Item {
     readonly property bool horizontal: widget.formFactor === PlasmaCore.Types.Horizontal
     readonly property bool fillAvailableSpace: plasmoid.configuration.fillAvailableSpace
     readonly property int widgetThickness: horizontal ? height : width
+    readonly property int controlsSize: Math.round(widgetThickness * plasmoid.configuration.panelControlsSizeRatio)
+    readonly property bool spaceBetweenControlsInPanel: plasmoid.configuration.spaceBetweenControlsInPanel
     readonly property int iconSize: Math.round(widgetThickness * plasmoid.configuration.panelIconSizeRatio)
-    readonly property int lengthMargin: Math.round((widgetThickness - iconSize)) / 2
+    readonly property int lengthMargin: Math.round((widgetThickness - Math.max(controlsSize, iconSize))) / 2
     readonly property bool colorsFromAlbumCover: plasmoid.configuration.colorsFromAlbumCover
     readonly property int panelBackgroundRadius: plasmoid.configuration.panelBackgroundRadius
     readonly property bool useImageColors: panelIcon.imageReady && panelIcon.type == PanelIcon.Type.Image && colorsFromAlbumCover
@@ -46,12 +48,11 @@ Item {
             Rectangle {
                 id: progress
 
-                // color: foregroundColor
-                color: "#9effca"
+                color: foregroundColor
                 height: horizontal ? parent.height : parent.height * (player.songPosition / player.songLength)
                 width: horizontal ? parent.width * (player.songPosition / player.songLength) : parent.width
                 visible: plasmoid.configuration.mediaProgressInPanel
-                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1 : 0.68
+                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 0.15 : 0.07
             }
 
         }
@@ -86,6 +87,12 @@ Item {
                     widget.expanded = !widget.expanded;
                 }
             }
+        }
+        onWheelUp: {
+            player.changeVolume(plasmoid.configuration.volumeStep / 100, true);
+        }
+        onWheelDown: {
+            player.changeVolume(-plasmoid.configuration.volumeStep / 100, true);
         }
     }
 
@@ -206,6 +213,22 @@ Item {
                     opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1 : 0.75
                 }
 
+                // 🎵 迷你版 SoundBars：紧贴标题旁边（水平面板）或下方（垂直面板）
+                // 尺寸随面板厚度自适应，播放时跳动，暂停/停止时静止。
+                SoundBars {
+                    visible: player.title !== "" || player.artists.length > 0
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    Layout.preferredHeight: barHeight
+                    Layout.preferredWidth: barCount * (barWidth + barSpacing) - barSpacing
+                    playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
+                    // 迷你尺寸：柱子更细更短，避免挤占标题空间
+                    barCount: 6
+                    barWidth: 2
+                    barHeight: compact.controlsSize > 0 ? compact.controlsSize * 0.55 : 10
+                    barSpacing: 1.5
+                    onClicked: player.playPause()
+                }
+
             }
 
             Item {
@@ -213,26 +236,6 @@ Item {
 
                 Layout.fillHeight: !horizontal && fill
                 Layout.fillWidth: horizontal && fill
-            }
-
-        }
-
-        GridLayout {
-            columns: horizontal ? grid.children.length : 1
-            rows: horizontal ? 1 : grid.children.length
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-
-            // SoundBars 音频跳动条(尺寸随面板厚度自适应)
-            SoundBars {
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                Layout.preferredHeight: barHeight
-                Layout.preferredWidth: barCount * (barWidth + barSpacing) - barSpacing
-                playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
-                color: compact.foregroundColor
-                barCount: 6
-                barWidth: 2
-                barHeight: compact.widgetThickness * 1.8
-                barSpacing: 2
             }
 
         }

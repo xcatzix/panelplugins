@@ -14,9 +14,11 @@ KCM.SimpleKCM {
     property alias cfg_useAlbumCoverAsPanelIcon: useAlbumCoverAsPanelIcon.checked
     property alias cfg_fallbackToIconWhenArtNotAvailable: fallbackToIconWhenArtNotAvailable.checked
     property alias cfg_albumCoverRadius: albumCoverRadius.value
+    property alias cfg_skipBackwardControlInPanel: skipBackwardControlInPanel.checked
+    property alias cfg_playPauseControlInPanel: playPauseControlInPanel.checked
+    property alias cfg_skipForwardControlInPanel: skipForwardControlInPanel.checked
     property alias cfg_songTextInPanel: songTextInPanel.checked
     property alias cfg_iconInPanel: iconInPanel.checked
-    property alias cfg_soundbarsInPanel: soundbarsInPanel.checked
     property alias cfg_maxSongWidthInPanel: maxSongWidthInPanel.value
     property alias cfg_songTextFixedWidth: songTextFixedWidth.value
     property alias cfg_useSongTextFixedWidth: useSongTextFixedWidth.checked
@@ -30,6 +32,8 @@ KCM.SimpleKCM {
     property alias cfg_fillAvailableSpace: fillAvailableSpaceCheckbox.checked
     property alias cfg_songTextAlignment: songTextPositionRadio.value
     property alias cfg_panelIconSizeRatio: panelIconSizeRatio.value
+    property alias cfg_panelControlsSizeRatio: panelControlsSizeRatio.value
+    property alias cfg_spaceBetweenControlsInPanel: spaceBetweenControlsInPanel.checked
     property alias cfg_artistsPosition: artistsPosition.value
     property alias cfg_titlePosition: titlePosition.value
     property alias cfg_albumPosition: albumPosition.value
@@ -53,7 +57,7 @@ KCM.SimpleKCM {
             }
             Kirigami.ContextualHelpButton {
                 toolTipText: i18n(
-                    "The widget fills all available width in the horizontal panel (or height in the vertical panel); the icon is aligned to the left (or top) and the song text with the sound bars are aligned to the right (or bottom); The song text can be positioned based on user preference."
+                    "The widget fills all available width in the horizontal panel (or height in the vertical panel);  the icon is aligned to the left (or top) and the playback controls are aligned to the right (or bottom); The song text can be positioned based on user preference."
                 )
             }
         }
@@ -108,8 +112,18 @@ KCM.SimpleKCM {
         }
 
         CheckBox {
-            id: soundbarsInPanel
-            Kirigami.FormData.label: i18n("Show sound bars")
+            id: skipBackwardControlInPanel
+            Kirigami.FormData.label: i18n("Show skip backward control")
+        }
+
+        CheckBox {
+            id: playPauseControlInPanel
+            Kirigami.FormData.label: i18n("Show play/pause control")
+        }
+
+        CheckBox {
+            id: skipForwardControlInPanel
+            Kirigami.FormData.label: i18n("Show skip forward control")
         }
 
         Kirigami.Separator {
@@ -451,6 +465,24 @@ KCM.SimpleKCM {
             id: textScrollingResetOnPauseCheckbox
             Kirigami.FormData.label: i18n("Reset position when scrolling is paused")
             enabled: textScrollingEnabledCheckbox.checked
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Playback controls customization")
+        }
+
+        Slider {
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            id: panelControlsSizeRatio
+            from: 0.6
+            to: 1.1
+            stepSize: 0.05
+            Kirigami.FormData.label: i18n("Size:")
+        }
+        CheckBox {
+            id: spaceBetweenControlsInPanel
+            Kirigami.FormData.label: i18n("Space between controls")
         }
 
         Kirigami.Separator {

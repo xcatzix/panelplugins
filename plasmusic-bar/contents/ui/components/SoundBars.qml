@@ -16,13 +16,11 @@ Item {
     property real barWidth: 2.5
     property real barHeight: 16
     property real barSpacing: 2
-    // 柱子的颜色，默认跟随主题文字色；compact 页可传入动态前景色
-    property color color: Kirigami.Theme.textColor
 
     signal clicked()
 
     implicitWidth: row.implicitWidth
-    implicitHeight: root.barHeight > 0 ? root.barHeight : kirigami.Units.iconSizes.medium
+    implicitHeight: parent.height > 0 ? parent.height : Kirigami.Units.iconSizes.medium
 
     // 点击跳动条 = 播放/暂停（与播放按钮等效）
     MouseArea {
@@ -51,7 +49,7 @@ Item {
                 height: root.barHeight * _factors[index % _factors.length]
                 y: (parent.height - height) / 2
                 radius: root.barWidth / 2
-                color: root.color
+                color: Kirigami.Theme.textColor
                 opacity: root.playing ? 0.9 : 0.4
                 transformOrigin: Item.Center
 
