@@ -1,192 +1,235 @@
 import "./components"
 import QtQuick
 import QtQuick.Layouts
-import org.kde.plasma.core as PlasmaCore
+import Qt.labs.folderlistmodel
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.private.mpris as Mpris
 import Qt5Compat.GraphicalEffects
-
 
 Item {
     id: root
 
     enum SongAndArtistTextPosition {
-        AboveProgressBar,
-        UnderProgressBar
+        AbovePlayerSelector,
+        UnderPlayerSelector
     }
 
-    property string albumPlaceholder: plasmoid.configuration.albumPlaceholder
-    property real volumeStep: plasmoid.configuration.volumeStep
-    property bool albumCoverBackground: plasmoid.configuration.fullAlbumCoverAsBackground
-    property bool thumbnailVisible: plasmoid.configuration.fullViewThumbnailVisible
-    property bool progressBarVisible: plasmoid.configuration.fullViewProgressBarVisible
-    property bool volumeControlVisible: plasmoid.configuration.fullViewVolumeControlVisible
-    property bool shuffleVisible: plasmoid.configuration.fullViewShuffleVisible
-    property bool playbackControlsVisible: plasmoid.configuration.fullViewPlaybackControlsVisible
-    property bool loopVisible: plasmoid.configuration.fullViewLoopVisible
-    // SoundBars 跳动条：始终显示（它是纯视觉元素，无独立开关）
-    readonly property bool soundBarsVisible: true
-    property bool playbackControlsFitWidth: plasmoid.configuration.fullViewPlaybackControlsFillWidth
-    property bool songTextVisible: plasmoid.configuration.fullViewSongTextVisible
-    property int songTextAlignment: plasmoid.configuration.fullViewSongTextAlignment
-    property bool songTextAboveProgressBar: plasmoid.configuration.fullViewSongTextPosition === Full.SongAndArtistTextPosition.AboveProgressBar
+    readonly property string photoFolder: plasmoid.configuration.photoFolder
+    readonly property bool usePhotoFolder: photoFolder.length > 0
+    readonly property bool usePhotoFolderWhilePlaying: plasmoid.configuration.photoFolderWhilePlaying
+    readonly property bool mediaActive: player.ready && player.playbackStatus !== Mpris.PlaybackStatus.Stopped && player.playbackStatus !== Mpris.PlaybackStatus.Unknown
+    readonly property bool showFolderPhoto: usePhotoFolder && (!mediaActive || usePhotoFolderWhilePlaying)
+    readonly property bool thumbnailVisible: plasmoid.configuration.fullViewThumbnailVisible
+    readonly property bool albumCoverBackground: plasmoid.configuration.fullAlbumCoverAsBackground
+    readonly property bool songTextVisible: plasmoid.configuration.fullViewSongTextVisible
+    readonly property int songTextAlignment: plasmoid.configuration.fullViewSongTextAlignment
+    readonly property bool songTextAboveSelector:
+        plasmoid.configuration.fullViewSongTextPosition === Full.SongAndArtistTextPosition.AbovePlayerSelector
+    readonly property bool playerSelectorVisible:
+        plasmoid.configuration.showPlayerSelector && player.mpris2Model.rowCount() > 2 && player.sourceIdentities == null
+    readonly property bool fullAlbumCoverRounded: plasmoid.configuration.fullAlbumCoverRounded
+    readonly property int albumCoverRadius: plasmoid.configuration.fullAlbumCoverRadius
 
-    // The Full View max and min width is driven by config values. The window can be resized within these bounds; thumbnail and text adapt.
-    readonly property int configMinWidth: plasmoid.configuration.fullViewMinWidth
-    readonly property int maximumWidth: plasmoid.configuration.fullViewMaxWidth
-    property bool fullAlbumCoverRounded: plasmoid.configuration.fullAlbumCoverRounded
-    property int albumCoverRadius: plasmoid.configuration.fullAlbumCoverRadius
-
-    // Override min width if visible content (e.g. volume/shuffle/loop bar) needs more space
-    readonly property int contentMinWidth: (volumeControlVisible || shuffleVisible || loopVisible || soundBarsVisible) ? 200 : 0
-    readonly property int effectiveMinWidth: Math.min(Math.max(configMinWidth, contentMinWidth), maximumWidth)
-
-    Layout.minimumWidth: effectiveMinWidth
-    Layout.maximumWidth: maximumWidth
-    Layout.preferredWidth: effectiveMinWidth
+    Layout.preferredWidth: column.implicitWidth
     Layout.preferredHeight: column.implicitHeight
+    Layout.minimumWidth: column.implicitWidth
     Layout.minimumHeight: column.implicitHeight
-    Layout.maximumHeight: column.implicitHeight
 
-    // Store the original theme colors (root keeps default Kirigami.Theme.inherit: true)
-    readonly property color _originalTextColor: Kirigami.Theme.textColor
-    readonly property color _originalHighlightColor: Kirigami.Theme.highlightColor
+    property int photoIndex: 0
 
+    FolderListModel {
+        id: photoModel
+        folder: root.photoFolder
+        showDirs: false
+        sortField: FolderListModel.Name
+        sortReversed: false
+        nameFilters: [
+            "*.jpg", "*.jpeg", "*.png", "*.webp",
+            "*.gif", "*.bmp", "*.avif", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP"
+        ]
+
+        onCountChanged: {
+            if (photoIndex >= count)
+                photoIndex = Math.max(0, count - 1)
+        }
+    }
+
+    onPhotoFolderChanged: photoIndex = 0
+
+    readonly property string selectedPhotoUrl:
+        photoModel.count > 0
+        ? String(photoModel.get(Math.min(photoIndex, photoModel.count - 1), "fileUrl") || "")
+        : ""
+
+    readonly property string displayedImageUrl:
+        showFolderPhoto && selectedPhotoUrl.length > 0 ? selectedPhotoUrl : String(player.artUrl || "")
+
+    // Album-cover/photo colors are only used for the optional desktop background.
     Item {
         visible: albumCoverBackground && thumbnailVisible
-        Layout.margins: 0
-        anchors.centerIn: parent
-        height: column.height
-        width: column.width
+        anchors.fill: parent
+        z: -1
 
-        ImageWithPlaceholder {
-            id: albumArtFull
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-            height: parent.height * 0.7
-            width: parent.width
+        Image {
+            id: backgroundImage
+            anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            placeholderSource: albumPlaceholder
-            imageSource: player.artUrl
-
-            onStatusChanged: {
-                if (status === Image.Ready) {
-                    imageColors.update()
-                }
-            }
+            source: root.displayedImageUrl
+            opacity: 0.9
 
             Kirigami.ImageColors {
                 id: imageColors
-                source: albumArtFull
-                readonly property color bgColor: average
-                readonly property var bgColorBrightness: Kirigami.ColorUtils.brightnessForColor(bgColor)
-                readonly property color contrastColor: bgColorBrightness === Kirigami.ColorUtils.Dark ? "white" : "black"
-                readonly property color fgColor: Kirigami.ColorUtils.tintWithAlpha(bgColor, contrastColor, .6)
-                readonly property color hlColor: Kirigami.ColorUtils.tintWithAlpha(bgColor, contrastColor, .8)
+                source: backgroundImage
             }
 
-            layer.enabled: root.fullAlbumCoverRounded && root.albumCoverRadius > 0
-			layer.effect: OpacityMask {
-				maskSource: Item {
-					width: albumArtFull.width
-					height: albumArtFull.height
-					Rectangle {
-						anchors.fill: parent
-						radius: albumCoverRadius
-                        bottomRightRadius: 0
-                        bottomLeftRadius: 0
-					}
-				}
-			}
-        }
-
-        LinearGradient {
-            id: mask
-            anchors.fill: parent
-            gradient: Gradient {
-                GradientStop { position: 0; color: headerbar.visible ? imageColors.bgColor : "transparent" }   // Adjust top gradient when the player selector is visible
-                GradientStop { position: 0.11; color: "transparent" }
-                GradientStop { position: headerbar.visible ? 0.5 : 0.4; color: "transparent" }
-                GradientStop { position: 0.7; color: imageColors.bgColor }
-                GradientStop { position: 1; color: imageColors.bgColor }
+            LinearGradient {
+                anchors.fill: parent
+                gradient: Gradient {
+                    GradientStop { position: 0; color: imageColors.average }
+                    GradientStop { position: 0.7; color: "transparent" }
+                    GradientStop { position: 1; color: imageColors.average }
+                }
             }
         }
     }
 
+    Component {
+        id: playerSelectorComponent
 
-    ColumnLayout {
-        id: column
-
-        spacing: 0
-        anchors.fill: parent
-
-        // Override theme ONLY for this layout and its children
-        Kirigami.Theme.inherit: false
-        Kirigami.Theme.textColor: albumCoverBackground ? imageColors.fgColor : root._originalTextColor
-        Kirigami.Theme.highlightColor: albumCoverBackground ? imageColors.hlColor : root._originalHighlightColor
-
-        // Media Player Selector
-        Rectangle {
-            id: headerbar
+        RowLayout {
+            spacing: Kirigami.Units.smallSpacing
             Layout.fillWidth: true
-            visible: plasmoid.configuration.showPlayerSelector
-                    && playerList.count > 2
-                    && player.sourceIdentities == null
 
-            color: albumCoverBackground
-                ? "transparent"
-                : Kirigami.Theme.backgroundColor
+            Repeater {
+                model: player.mpris2Model
 
-            implicitHeight: Kirigami.Units.gridUnit * 2
+                delegate: PlasmaComponents3.ToolButton {
+                    required property string iconName
+                    required property bool isMultiplexer
+                    required property string identity
+                    required property int index
 
-            PlasmaComponents3.TabBar {
-                id: playerSelector
-                objectName: "playerSelector"
-                anchors.fill: parent
-                implicitHeight: contentHeight
-                currentIndex: player.mpris2Model.currentIndex
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    display: PlasmaComponents3.AbstractButton.IconOnly
+                    icon.name: iconName
+                    icon.height: Kirigami.Units.iconSizes.small
+                    text: isMultiplexer ? i18nc("@action:button", "Choose player automatically") : identity
+                    checkable: true
+                    checked: player.mpris2Model.currentIndex === index
+                    onClicked: player.mpris2Model.currentIndex = index
 
-                Repeater {
-                    id: playerList
-                    model: player.mpris2Model
-                    delegate: PlasmaComponents3.TabButton {
-                        required property string iconName
-                        required property bool isMultiplexer
-                        required property string identity
-                        required property int index
-                        anchors.top: parent?.top
-                        anchors.bottom: parent?.bottom
-                        display: PlasmaComponents3.AbstractButton.IconOnly
-                        icon.name: iconName
-                        icon.height: Kirigami.Units.iconSizes.small
-                        text: isMultiplexer ? i18nc("@action:button", "Choose player automatically") : identity
-
-                        Accessible.onPressAction: clicked()
-                        onClicked: {
-                            player.mpris2Model.currentIndex = index;
-                        }
-
-                        PlasmaComponents3.ToolTip.text: text
-                        PlasmaComponents3.ToolTip.delay: Kirigami.Units.toolTipDelay
-                        PlasmaComponents3.ToolTip.visible: hovered || (activeFocus && (focusReason === Qt.TabFocusReason || focusReason === Qt.BacktabFocusReason))
-                    }
+                    PlasmaComponents3.ToolTip.text: text
+                    PlasmaComponents3.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
             }
         }
+    }
 
-        Rectangle {
-            id: thumbnailContainer
-            visible: thumbnailVisible
+    ColumnLayout {
+        id: column
+        anchors.fill: parent
+        spacing: 0
+
+        Kirigami.Theme.inherit: true
+
+        // Text and media player selector occupy the former progress-bar area.
+        ColumnLayout {
             Layout.fillWidth: true
-            Layout.margins: 10
-            // Use the actual image aspect ratio, fallback to square if not loaded yet
-            readonly property real imageRatio: albumArtNormal.implicitWidth > 0 && albumArtNormal.implicitHeight > 0
-                ? albumArtNormal.implicitWidth / albumArtNormal.implicitHeight
-                : 1.0
-            Layout.preferredHeight: thumbnailVisible ? width / imageRatio : 0
-            color: 'transparent'
+            spacing: 0
+
+            SongAndArtistText {
+                visible: root.songTextVisible && root.songTextAboveSelector
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                Layout.bottomMargin: 5
+                textAlignment: root.songTextAlignment
+                mediaActive: root.mediaActive
+                scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
+                title: player.title
+                artists: player.artists
+                album: player.album
+                textFont: baseFont
+                titlePosition: plasmoid.configuration.fullTitlePosition
+                artistsPosition: plasmoid.configuration.fullArtistsPosition
+                albumPosition: plasmoid.configuration.fullAlbumPosition
+                hideAlbumForSingles: plasmoid.configuration.fullHideAlbumForSingles
+                scrollingEnabled: widget.expanded
+            }
+
+            Loader {
+                visible: root.playerSelectorVisible
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                Layout.preferredHeight: Kirigami.Units.gridUnit * 2
+                sourceComponent: playerSelectorComponent
+            }
+
+            Rectangle {
+                visible: root.playerSelectorVisible && root.songTextVisible
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                height: 1
+                color: Kirigami.Theme.separatorColor
+            }
+
+            SongAndArtistText {
+                visible: root.songTextVisible && !root.songTextAboveSelector
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                Layout.topMargin: 5
+                textAlignment: root.songTextAlignment
+                mediaActive: root.mediaActive
+                scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
+                title: player.title
+                artists: player.artists
+                album: player.album
+                textFont: baseFont
+                titlePosition: plasmoid.configuration.fullTitlePosition
+                artistsPosition: plasmoid.configuration.fullArtistsPosition
+                albumPosition: plasmoid.configuration.fullAlbumPosition
+                hideAlbumForSingles: plasmoid.configuration.fullHideAlbumForSingles
+                scrollingEnabled: widget.expanded
+            }
+        }
+
+        // Fixed image area: width and height are explicitly assigned.
+        Item {
+            id: thumbnailContainer
+            visible: root.thumbnailVisible
+            Layout.fillWidth: true
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+            Layout.topMargin: 10
+            Layout.bottomMargin: 10
+            implicitWidth: 300
+            width: parent.width - 20
+            height: width
+
+            Image {
+                id: albumArtNormal
+                anchors.fill: parent
+                source: root.displayedImageUrl
+                fillMode: Image.PreserveAspectFit
+                asynchronous: true
+
+                layer.enabled: root.fullAlbumCoverRounded && root.albumCoverRadius > 0
+                layer.effect: OpacityMask {
+                    maskSource: Item {
+                        width: albumArtNormal.width
+                        height: albumArtNormal.height
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: root.albumCoverRadius
+                        }
+                    }
+                }
+            }
 
             PlasmaComponents3.ToolTip {
                 id: raisePlayerTooltip
@@ -198,164 +241,46 @@ Item {
             MouseArea {
                 id: coverMouseArea
                 anchors.fill: parent
+                hoverEnabled: true
                 cursorShape: player.canRaise ? Qt.PointingHandCursor : Qt.ArrowCursor
                 onClicked: {
-                    if (player.canRaise) player.raise()
-                }
-                hoverEnabled: true
-            }
-
-            ImageWithPlaceholder {
-                visible: !albumCoverBackground
-                id: albumArtNormal
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
-
-                placeholderSource: albumPlaceholder
-                imageSource: player.artUrl
-
-                layer.enabled: root.fullAlbumCoverRounded && root.albumCoverRadius > 0
-                layer.effect: OpacityMask {
-					maskSource: Item {
-						width: albumArtNormal.width
-						height: albumArtNormal.height
-						Rectangle {
-							anchors.fill: parent
-							radius: albumCoverRadius
-						}
-					}
-				}
-            }
-        }
-
-        SongAndArtistText {
-            visible: songTextVisible && songTextAboveProgressBar
-            Layout.fillWidth: true
-            Layout.leftMargin: 10
-            Layout.rightMargin: 10
-            Layout.bottomMargin: 5
-            textAlignment: songTextAlignment
-            scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
-            title: player.title
-            artists: player.artists
-            album: player.album
-            textFont: baseFont
-            titlePosition: plasmoid.configuration.fullTitlePosition
-            artistsPosition: plasmoid.configuration.fullArtistsPosition
-            albumPosition: plasmoid.configuration.fullAlbumPosition
-            hideAlbumForSingles: plasmoid.configuration.fullHideAlbumForSingles
-            scrollingEnabled: widget.expanded
-        }
-
-        TrackPositionSlider {
-            visible: progressBarVisible
-            Layout.leftMargin: 10
-            Layout.rightMargin: 10
-            songPosition: player.songPosition
-            songLength: player.songLength
-            playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
-            enableChangePosition: player.canSeek
-            onRequireChangePosition: (position) => {
-                player.setPosition(position)
-            }
-            onRequireUpdatePosition: () => {
-                player.updatePosition()
-            }
-        }
-
-        SongAndArtistText {
-            visible: songTextVisible && !songTextAboveProgressBar
-            Layout.fillWidth: true
-            Layout.leftMargin: 10
-            Layout.rightMargin: 10
-            Layout.topMargin: 5
-            textAlignment: songTextAlignment
-            scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
-            title: player.title
-            artists: player.artists
-            album: player.album
-            textFont: baseFont
-            titlePosition: plasmoid.configuration.fullTitlePosition
-            artistsPosition: plasmoid.configuration.fullArtistsPosition
-            albumPosition: plasmoid.configuration.fullAlbumPosition
-            hideAlbumForSingles: plasmoid.configuration.fullHideAlbumForSingles
-            scrollingEnabled: widget.expanded
-        }
-
-        // 声音控制条一栏：音量滑块 + （可选的）shuffle 与 loop 按钮
-        // shuffle / loop 从原来的独立播放控件栏移至此，与音量条并排。
-        Item {
-            visible: volumeControlVisible || shuffleVisible || loopVisible
-            Layout.leftMargin: 40
-            Layout.rightMargin: 40
-            Layout.topMargin: 10
-            Layout.fillWidth: true
-            Layout.preferredHeight: volumeRow.implicitHeight
-
-            RowLayout {
-                id: volumeRow
-                anchors.centerIn: parent
-                width: parent.width
-                spacing: Kirigami.Units.smallSpacing * 2
-
-                VolumeBar {
-                    Layout.fillWidth: true
-                    volume: player.volume
-                    onSetVolume: (vol) => {
-                        player.setVolume(vol)
-                    }
-                    onVolumeUp: {
-                        player.changeVolume(volumeStep / 100, false)
-                    }
-                    onVolumeDown: {
-                        player.changeVolume(-volumeStep / 100, false)
-                    }
-                }
-
-                CommandIcon {
-                    visible: shuffleVisible
-                    enabled: player.canChangeShuffle
-                    Layout.alignment: Qt.AlignVCenter
-                    size: Kirigami.Units.iconSizes.medium
-                    source: "media-playlist-shuffle"
-                    onClicked: player.setShuffle(player.shuffle === Mpris.ShuffleStatus.Off ? Mpris.ShuffleStatus.On : Mpris.ShuffleStatus.Off)
-                    active: player.shuffle === Mpris.ShuffleStatus.On
-                }
-
-                CommandIcon {
-                    visible: loopVisible
-                    enabled: player.canChangeLoopStatus
-                    Layout.alignment: Qt.AlignVCenter
-                    size: Kirigami.Units.iconSizes.medium
-                    source: player.loopStatus === Mpris.LoopStatus.Track ? "media-playlist-repeat-song" : "media-playlist-repeat"
-                    active: player.loopStatus != Mpris.LoopStatus.None
-                    onClicked: () => {
-                        let status = Mpris.LoopStatus.None;
-                        if (player.loopStatus == Mpris.LoopStatus.None)
-                            status = Mpris.LoopStatus.Track;
-                        else if (player.loopStatus === Mpris.LoopStatus.Track)
-                            status = Mpris.LoopStatus.Playlist;
-                        player.setLoopStatus(status);
-                    }
+                    if (player.canRaise)
+                        player.raise()
                 }
             }
-        }
 
-        // 🎵 SoundBars：音频跳动条独占一行（播放控件 previous/play/next 已移除）
-        // 点击跳动条 = 播放/暂停
-        Item {
-            visible: soundBarsVisible
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            Layout.bottomMargin: 10
-            Layout.fillWidth: true
-            Layout.preferredHeight: Kirigami.Units.iconSizes.medium
+            // Clicking the left/right side changes the selected folder photo.
+            MouseArea {
+                visible: root.showFolderPhoto && photoModel.count > 1
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: Math.max(40, parent.width * 0.22)
+                z: 2
+                onClicked: {
+                    photoIndex = (photoIndex - 1 + photoModel.count) % photoModel.count
+                }
+            }
 
-            SoundBars {
-                anchors.centerIn: parent
-                height: parent.height
-                playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
-                onClicked: player.playPause()
+            MouseArea {
+                visible: root.showFolderPhoto && photoModel.count > 1
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: Math.max(40, parent.width * 0.22)
+                z: 2
+                onClicked: {
+                    photoIndex = (photoIndex + 1) % photoModel.count
+                }
+            }
+
+            PlasmaComponents3.Label {
+                visible: root.showFolderPhoto && photoModel.count > 1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 6
+                text: i18n("%1 / %2", root.photoIndex + 1, photoModel.count)
+                z: 3
             }
         }
 
