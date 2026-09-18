@@ -26,8 +26,7 @@ Item {
     readonly property bool showText: plasmoid.configuration.songTextInPanel
     readonly property bool showSoundBars: plasmoid.configuration.soundBarsInPanel
     readonly property bool showIcon: plasmoid.configuration.iconInPanel
-    readonly property bool mediaActive: player.ready && player.playbackStatus !== Mpris.PlaybackStatus.Stopped && player.playbackStatus !== Mpris.PlaybackStatus.Unknown
-    readonly property bool mediaHasText: mediaActive && (player.title.length > 0 || player.artists.length > 0 || player.album.length > 0)
+    readonly property bool mediaHasText: player.ready && (player.title.length > 0 || player.artists.length > 0 || player.album.length > 0)
     readonly property bool showDisplayText: showText && (!mediaHasText || plasmoid.configuration.showCustomTextWithMedia)
 
     Layout.preferredWidth: horizontal ? content.implicitWidth : content.implicitWidth

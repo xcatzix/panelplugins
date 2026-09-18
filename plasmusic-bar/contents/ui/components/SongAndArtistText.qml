@@ -34,7 +34,6 @@ Item {
 
     property string noMediaText: widget.displayText
     property bool showCustomTextWithMedia: plasmoid.configuration.showCustomTextWithMedia
-    property bool mediaActive: false
 
     property int titlePosition: SongAndArtistText.TextPosition.FirstLine
     property int artistsPosition: SongAndArtistText.TextPosition.FirstLine
@@ -88,8 +87,8 @@ Item {
 
             font: finalSecondText.length > 0 ? root.boldTextFont : root.textFont;
             maxWidth: root.maxWidth !== undefined ? root.maxWidth : root.width
-            text: root.mediaActive
-                  ? (root.showCustomTextWithMedia ? root.noMediaText : (root.finalFirstText || root.finalSecondText))
+            text: root.finalFirstText || root.finalSecondText
+                  ? (root.showCustomTextWithMedia ? root.noMediaText : root.finalFirstText)
                   : root.noMediaText
         }
 

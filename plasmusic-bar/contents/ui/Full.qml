@@ -18,8 +18,7 @@ Item {
     readonly property string photoFolder: plasmoid.configuration.photoFolder
     readonly property bool usePhotoFolder: photoFolder.length > 0
     readonly property bool usePhotoFolderWhilePlaying: plasmoid.configuration.photoFolderWhilePlaying
-    readonly property bool mediaActive: player.ready && player.playbackStatus !== Mpris.PlaybackStatus.Stopped && player.playbackStatus !== Mpris.PlaybackStatus.Unknown
-    readonly property bool showFolderPhoto: usePhotoFolder && (!mediaActive || usePhotoFolderWhilePlaying)
+    readonly property bool showFolderPhoto: usePhotoFolder && (!player.ready || usePhotoFolderWhilePlaying)
     readonly property bool thumbnailVisible: plasmoid.configuration.fullViewThumbnailVisible
     readonly property bool albumCoverBackground: plasmoid.configuration.fullAlbumCoverAsBackground
     readonly property bool songTextVisible: plasmoid.configuration.fullViewSongTextVisible
@@ -146,7 +145,6 @@ Item {
                 Layout.rightMargin: 10
                 Layout.bottomMargin: 5
                 textAlignment: root.songTextAlignment
-                mediaActive: root.mediaActive
                 scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
                 title: player.title
                 artists: player.artists
@@ -184,7 +182,6 @@ Item {
                 Layout.rightMargin: 10
                 Layout.topMargin: 5
                 textAlignment: root.songTextAlignment
-                mediaActive: root.mediaActive
                 scrollingSpeed: plasmoid.configuration.fullViewTextScrollingSpeed
                 title: player.title
                 artists: player.artists

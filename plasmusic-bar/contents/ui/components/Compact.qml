@@ -51,7 +51,6 @@ Item {
                 height: root.barHeight * _factors[index % _factors.length]
                 y: (parent.height - height) / 2
                 radius: root.barWidth / 2
-                color: Kirigami.Theme.textColor
                 color: root.color
                 opacity: root.playing ? 0.9 : 0.4
                 transformOrigin: Item.Center

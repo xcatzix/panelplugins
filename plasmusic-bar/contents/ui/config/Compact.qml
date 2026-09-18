@@ -1,12 +1,14 @@
+import "../components"
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils as KCM
 
+
 KCM.SimpleKCM {
     id: compactConfigPage
-    Layout.preferredWidth: form.implicitWidth
+    Layout.preferredWidth: form.implicitWidth;
 
     property alias cfg_panelIcon: panelIcon.value
     property alias cfg_useAlbumCoverAsPanelIcon: useAlbumCoverAsPanelIcon.checked
@@ -17,9 +19,11 @@ KCM.SimpleKCM {
     property alias cfg_iconInPanel: iconInPanel.checked
     property alias cfg_songTextFixedWidth: songTextFixedWidth.value
     property alias cfg_textScrollingSpeed: textScrollingSpeed.value
-    property alias cfg_textScrollingEnabled: textScrollingEnabledCheckbox.checked
+        property alias cfg_textScrollingEnabled: textScrollingEnabledCheckbox.checked
     property alias cfg_textScrollingBehaviour: scrollingBehaviourValue.value
     property alias cfg_textScrollingResetOnPause: textScrollingResetOnPauseCheckbox.checked
+    property alias cfg_colorsFromAlbumCover: colorsFromAlbumCover.checked
+    property alias cfg_panelBackgroundRadius: panelBackgroundRadius.value
     property alias cfg_panelIconSizeRatio: panelIconSizeRatio.value
 
     Kirigami.FormLayout {
@@ -28,6 +32,11 @@ KCM.SimpleKCM {
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
             Kirigami.FormData.label: i18n("Layout")
+        }
+
+        CheckBox {
+            id: iconInPanel
+            Kirigami.FormData.label: i18n("Show icon:")
         }
 
         CheckBox {
@@ -40,10 +49,6 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Show soundbars")
         }
 
-        CheckBox {
-            id: iconInPanel
-            Kirigami.FormData.label: i18n("Show icon")
-        }
 
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
@@ -56,8 +61,8 @@ KCM.SimpleKCM {
         }
 
         Slider {
-            id: panelIconSizeRatio
             Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            id: panelIconSizeRatio
             from: 0.6
             to: 1
             stepSize: 0.05
@@ -76,12 +81,12 @@ KCM.SimpleKCM {
         }
 
         Slider {
-            id: albumCoverRadius
             Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            enabled: useAlbumCoverAsPanelIcon.checked
+            id: albumCoverRadius
             from: 0
             to: 25
             stepSize: 2
-            enabled: useAlbumCoverAsPanelIcon.checked
             Kirigami.FormData.label: i18n("Album cover radius:")
         }
 
@@ -94,6 +99,7 @@ KCM.SimpleKCM {
             id: songTextFixedWidth
             from: 40
             to: 1000
+            value: 200
             Kirigami.FormData.label: i18n("Fixed width:")
             enabled: songTextInPanel.checked
         }
@@ -103,14 +109,19 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Text scrolling")
         }
 
+        QtObject {
+            id: scrollingBehaviourValue
+            property int value: 0
+        }
+
         CheckBox {
             id: textScrollingEnabledCheckbox
             Kirigami.FormData.label: i18n("Enabled")
         }
 
         Slider {
-            id: textScrollingSpeed
             Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            id: textScrollingSpeed
             from: 1
             to: 10
             stepSize: 1
@@ -118,14 +129,9 @@ KCM.SimpleKCM {
             enabled: textScrollingEnabledCheckbox.checked
         }
 
-        QtObject {
-            id: scrollingBehaviourValue
-            property int value: 0
-        }
-
         RadioButton {
-            id: alwaysScroll
             Kirigami.FormData.label: i18n("When text overflows:")
+            id: alwaysScroll
             text: i18n("Always scroll")
             checked: scrollingBehaviourValue.value === 0
             onClicked: scrollingBehaviourValue.value = 0
@@ -148,10 +154,12 @@ KCM.SimpleKCM {
             enabled: textScrollingEnabledCheckbox.checked
         }
 
+
         CheckBox {
             id: textScrollingResetOnPauseCheckbox
             Kirigami.FormData.label: i18n("Reset position when scrolling is paused")
             enabled: textScrollingEnabledCheckbox.checked
         }
+
     }
 }
