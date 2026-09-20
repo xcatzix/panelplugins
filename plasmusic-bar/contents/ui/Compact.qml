@@ -14,8 +14,6 @@ Item {
     readonly property bool horizontal: widget.formFactor === PlasmaCore.Types.Horizontal
     readonly property bool fillAvailableSpace: plasmoid.configuration.fillAvailableSpace
     readonly property int widgetThickness: horizontal ? height : width
-    readonly property int controlsSize: Math.round(widgetThickness * plasmoid.configuration.panelControlsSizeRatio)
-    readonly property bool spaceBetweenControlsInPanel: plasmoid.configuration.spaceBetweenControlsInPanel
     readonly property int iconSize: Math.round(widgetThickness * plasmoid.configuration.panelIconSizeRatio)
     readonly property int lengthMargin: Math.round((widgetThickness - Math.max(controlsSize, iconSize))) / 2
     readonly property bool colorsFromAlbumCover: plasmoid.configuration.colorsFromAlbumCover
@@ -48,11 +46,12 @@ Item {
             Rectangle {
                 id: progress
 
-                color: foregroundColor
+                // color: foregroundColor
+                color: "#86d4fe"
                 height: horizontal ? parent.height : parent.height * (player.songPosition / player.songLength)
                 width: horizontal ? parent.width * (player.songPosition / player.songLength) : parent.width
                 visible: plasmoid.configuration.mediaProgressInPanel
-                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 0.15 : 0.07
+                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 0.88 : 0.45
             }
 
         }
@@ -61,31 +60,15 @@ Item {
 
     MouseAreaWithWheelHandler {
         anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.BackButton | Qt.ForwardButton
+        acceptedButtons: Qt.LeftButton
         propagateComposedEvents: true
         onClicked: (mouse) => {
-            switch (mouse.button) {
-            case Qt.MiddleButton:
-                player.playPause();
-                break;
-            case Qt.BackButton:
-                if (player.canGoPrevious)
-                    player.previous();
+            if (mouse.modifiers & Qt.ControlModifier) {
+                if (player.canRaise)
+                    player.raise();
 
-                break;
-            case Qt.ForwardButton:
-                if (player.canGoNext)
-                    player.next();
-
-                break;
-            default:
-                if (mouse.modifiers & Qt.ControlModifier) {
-                    if (player.canRaise)
-                        player.raise();
-
-                } else {
-                    widget.expanded = !widget.expanded;
-                }
+            } else {
+                widget.expanded = !widget.expanded;
             }
         }
         onWheelUp: {
@@ -108,31 +91,6 @@ Item {
         anchors.bottomMargin: horizontal ? 0 : lengthMargin
         anchors.topMargin: horizontal ? 0 : lengthMargin
         anchors.fill: parent
-
-        PanelIcon {
-            id: panelIcon
-
-            visible: plasmoid.configuration.iconInPanel
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-            size: compact.iconSize
-            icon: plasmoid.configuration.panelIcon
-            imageUrl: player.artUrl
-            imageRadius: plasmoid.configuration.albumCoverRadius
-            fallbackToIconWhenImageNotAvailable: plasmoid.configuration.fallbackToIconWhenArtNotAvailable
-            type: {
-                if (!plasmoid.configuration.useAlbumCoverAsPanelIcon)
-                    return PanelIcon.Type.Icon;
-
-                return PanelIcon.Type.Image;
-            }
-        }
-
-        // This item is used to fill the available space when the song text is not enabled.
-        Item {
-            visible: !plasmoid.configuration.songTextInPanel && fillAvailableSpace
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-        }
 
         GridLayout {
             id: songGrid
@@ -224,48 +182,29 @@ Item {
 
         }
 
-        GridLayout {
-            columns: horizontal ? grid.children.length : 1
-            rows: horizontal ? 1 : grid.children.length
-            columnSpacing: spaceBetweenControlsInPanel ? Kirigami.Units.smallSpacing : 0
-            rowSpacing: spaceBetweenControlsInPanel ? Kirigami.Units.smallSpacing : 0
-            Layout.fillHeight: horizontal
-            Layout.fillWidth: !horizontal
+        SoundBars {
+            id: soundBars
+
+            playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+        }
 
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.skipBackwardControlInPanel
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                enabled: player.canGoPrevious
-                icon.name: "media-skip-backward"
-                icon.color: foregroundColor
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                onClicked: player.previous()
+        PanelIcon {
+            id: panelIcon
+
+            visible: plasmoid.configuration.iconInPanel
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+            size: compact.iconSize
+            icon: plasmoid.configuration.panelIcon
+            imageUrl: player.artUrl
+            imageRadius: plasmoid.configuration.albumCoverRadius
+            fallbackToIconWhenImageNotAvailable: plasmoid.configuration.fallbackToIconWhenArtNotAvailable
+            type: {
+                if (!plasmoid.configuration.useAlbumCoverAsPanelIcon)
+                    return PanelIcon.Type.Icon;
+
+                return PanelIcon.Type.Image;
             }
-
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.playPauseControlInPanel
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                icon.name: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "media-playback-pause" : "media-playback-start"
-                icon.color: foregroundColor
-                onClicked: player.playPause()
-            }
-
-            PlasmaComponents3.ToolButton {
-                visible: plasmoid.configuration.skipForwardControlInPanel
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                enabled: player.canGoNext
-                implicitWidth: compact.controlsSize
-                implicitHeight: compact.controlsSize
-                icon.name: "media-skip-forward"
-                icon.color: foregroundColor
-                onClicked: player.next()
-            }
-
         }
 
     }

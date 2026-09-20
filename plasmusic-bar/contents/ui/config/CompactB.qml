@@ -8,6 +8,9 @@ import org.kde.kcmutils as KCM
 
 KCM.SimpleKCM {
     id: compactConfigPage
+
+    // Default-value property exposed for Plasma 6 configuration initialization.
+    property bool cfg_useSongTextFixedWidthDefault: false
     Layout.preferredWidth: form.implicitWidth;
 
     property alias cfg_panelIcon: panelIcon.value
@@ -16,6 +19,7 @@ KCM.SimpleKCM {
     property alias cfg_albumCoverRadius: albumCoverRadius.value
     property alias cfg_songTextInPanel: songTextInPanel.checked
     property alias cfg_iconInPanel: iconInPanel.checked
+    property alias cfg_soundBarsInPanel: soundBarsInPanel.checked
     property alias cfg_maxSongWidthInPanel: maxSongWidthInPanel.value
     property alias cfg_songTextFixedWidth: songTextFixedWidth.value
     property alias cfg_useSongTextFixedWidth: useSongTextFixedWidth.checked
@@ -35,7 +39,6 @@ KCM.SimpleKCM {
     property alias cfg_compactTruncatedTextStyle: compactTruncatedTextStyle.value
     property alias cfg_mediaProgressInPanel: mediaProgressInPanel.checked
     property alias cfg_compactHideAlbumForSingles: compactHideAlbumForSingles.checked
-    property alias cfg_hidePlayerControlBindsInHoverTooltip: hidePlayerControlBindsInHoverTooltip.checked
 
     Kirigami.FormLayout {
         id: form
@@ -52,7 +55,7 @@ KCM.SimpleKCM {
             }
             Kirigami.ContextualHelpButton {
                 toolTipText: i18n(
-                    "The widget fills all available width in the horizontal panel (or height in the vertical panel);  the song text, sound bars, and icon are arranged from left to right; The song text can be positioned based on user preference."
+                    "The widget fills all available width in the horizontal panel (or height in the vertical panel);  the icon is aligned to the left (or top) and the playback controls are aligned to the right (or bottom); The song text can be positioned based on user preference."
                 )
             }
         }
@@ -98,19 +101,18 @@ KCM.SimpleKCM {
 
         CheckBox {
             id: iconInPanel
-            Kirigami.FormData.label: i18n("Show icon:")
+            text: i18n("Show icon")
         }
 
         CheckBox {
             id: songTextInPanel
-            Kirigami.FormData.label: i18n("Show song text")
+            text: i18n("Show song text")
         }
 
-
-
-
-
-
+        CheckBox {
+            id: soundBarsInPanel
+            text: i18n("Show sound bars")
+        }
 
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
@@ -309,8 +311,8 @@ KCM.SimpleKCM {
 
         CheckBox {
             id: useSongTextFixedWidth
-            enabled: songTextInPanel.checked && fillAvailableSpaceCheckbox
-            Kirigami.FormData.label: i18n("Use fixed width")
+            enabled: songTextInPanel.checked
+            text: i18n("Use fixed width")
         }
 
         SpinBox {
@@ -318,7 +320,7 @@ KCM.SimpleKCM {
             from: 0
             to: 1000
             Kirigami.FormData.label: i18n("fixed width:")
-            enabled: useSongTextFixedWidth.checked && songTextInPanel.checked && fillAvailableSpaceCheckbox
+            enabled: useSongTextFixedWidth.checked && songTextInPanel.checked
         }
 
         SpinBox {
@@ -326,7 +328,7 @@ KCM.SimpleKCM {
             from: 0
             to: 1000
             Kirigami.FormData.label: i18n("max width:")
-            enabled: !useSongTextFixedWidth.checked && songTextInPanel.checked && fillAvailableSpaceCheckbox
+            enabled: !useSongTextFixedWidth.checked && songTextInPanel.checked
         }
 
         Item {
@@ -452,8 +454,6 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Reset position when scrolling is paused")
             enabled: textScrollingEnabledCheckbox.checked
         }
-
-
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
             Kirigami.FormData.label: i18n("Background")
@@ -485,16 +485,6 @@ KCM.SimpleKCM {
             to: 25
             stepSize: 2
             Kirigami.FormData.label: i18n("Background radius:")
-        }
-
-        Kirigami.Separator {
-            Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: i18n("Hover tooltip")
-        }
-
-        CheckBox{
-            id: hidePlayerControlBindsInHoverTooltip
-            Kirigami.FormData.label: i18n("Hide player control keybinds in tooltip")
         }
     }
 }

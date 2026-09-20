@@ -10,13 +10,17 @@ import org.kde.plasma.private.mpris as Mpris
 KCM.SimpleKCM {
     id: generalConfigPage
 
+    // Plasma 6 may pass config default values to every config page.
+    property bool cfg_useSongTextFixedWidthDefault: false
+
     property alias cfg_choosePlayerAutomatically: choosePlayerAutomatically.checked
     property var cfg_preferredPlayerIdentity
     property alias cfg_useCustomFont: customFontCheckbox.checked
     property alias cfg_customFont: fontDialog.fontChosen
-    property alias cfg_volumeStep: volumeStepSpinbox.value
     property alias cfg_noMediaText: noMediaText.text
     property alias cfg_showWhenNoMedia: showWhenNoMedia.checked
+    property alias cfg_showCustomTextWithMedia: showCustomTextWithMedia.checked
+    property alias cfg_usePlasMtextFile: usePlasMtextFile.checked
 
     property var preferredIdentities: {
         return cfg_preferredPlayerIdentity ? cfg_preferredPlayerIdentity.split(',').filter(x => x) : []
@@ -146,29 +150,26 @@ KCM.SimpleKCM {
         }
 
         CheckBox {
-            id:showWhenNoMedia
+            id: showWhenNoMedia
             Kirigami.FormData.label: i18n("Show widget when no media found")
         }
 
         TextField {
             id: noMediaText
-            Kirigami.FormData.label: i18n("Text displayed when no media found:")
-            enabled: showWhenNoMedia.checked
+            Kirigami.FormData.label: i18n("Display text:")
+            enabled: !usePlasMtextFile.checked
         }
 
-        Kirigami.Separator {
-            Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: i18n("Controls behaviour")
+        CheckBox {
+            id: usePlasMtextFile
+            Kirigami.FormData.label: i18n("Read text from ~/.cache/plasMusic/plasMtext.txt")
         }
 
-        SpinBox {
-            id: volumeStepSpinbox
-            Kirigami.FormData.label: i18n("Volume step:")
-            from: 1
-            to: 100
-            textFromValue: function(text) { return text + "%"; }
-            valueFromText: function(value) { return parseInt(value); }
+        CheckBox {
+            id: showCustomTextWithMedia
+            Kirigami.FormData.label: i18n("Show this text while media is playing")
         }
+
     }
 
     QtDialogs.FontDialog {

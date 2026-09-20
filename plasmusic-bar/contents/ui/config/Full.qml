@@ -11,10 +11,14 @@ import org.kde.plasma.core as PlasmaCore
 
 KCM.SimpleKCM {
     id: fullConfigPage
+
+    // Plasma 6 may pass config default values to every config page.
+    property bool cfg_useSongTextFixedWidthDefault: false
     Layout.preferredWidth: form.implicitWidth;
 
     property alias cfg_desktopWidgetBg: desktopWidgetBackgroundRadio.value
-    property alias cfg_albumPlaceholder: albumPlaceholderDialog.value
+    property alias cfg_photoFolder: photoFolderDialog.value
+    property alias cfg_photoFolderWhilePlaying: photoFolderWhilePlaying.checked
     property alias cfg_fullViewTextScrollingSpeed: fullViewTextScrollingSpeed.value
     property alias cfg_fullArtistsPosition: fullArtistsPosition.value
     property alias cfg_fullTitlePosition: fullTitlePosition.value
@@ -22,21 +26,12 @@ KCM.SimpleKCM {
     property alias cfg_fullAlbumCoverAsBackground: fullAlbumCoverAsBackground.checked
     property alias cfg_fullHideAlbumForSingles: fullHideAlbumForSingles.checked
     property alias cfg_fullViewThumbnailVisible: fullViewThumbnailVisible.checked
-    property alias cfg_fullViewProgressBarVisible: fullViewProgressBarVisible.checked
-    property alias cfg_fullViewVolumeControlVisible: fullViewVolumeControlVisible.checked
-    property alias cfg_fullViewShuffleVisible: fullViewShuffleVisible.checked
-    property alias cfg_fullViewPlaybackControlsVisible: fullViewPlaybackControlsVisible.checked
-    property alias cfg_fullViewLoopVisible: fullViewLoopVisible.checked
-    property alias cfg_fullViewPlaybackControlsFillWidth: fullViewPlaybackControlsFillWidth.checked
     property alias cfg_fullViewSongTextVisible: fullViewSongTextVisible.checked
     property alias cfg_fullViewSongTextAlignment: fullViewSongTextAlignment.value
     property alias cfg_fullViewSongTextPosition: fullViewSongTextPosition.value
-    property alias cfg_fullViewMinWidth: fullViewMinWidth.value
-    property alias cfg_fullViewMaxWidth: fullViewMaxWidth.value
     property alias cfg_showPlayerSelector: showPlayerSelector.checked
     property alias cfg_fullAlbumCoverRounded: fullAlbumCoverRounded.checked
     property alias cfg_fullAlbumCoverRadius: fullAlbumCoverRadius.value
-    property alias cfg_hideCanBeRaisedTooltip: hideCanBeRaisedTooltip.checked
 
     Kirigami.FormLayout {
         id: form
@@ -48,12 +43,19 @@ KCM.SimpleKCM {
 
         CheckBox {
             id: fullViewThumbnailVisible
-            Kirigami.FormData.label: i18n("Show album cover")
+            Kirigami.FormData.label: i18n("Show album cover / photo")
         }
 
-        CheckBox {
-            id: fullViewProgressBarVisible
-            Kirigami.FormData.label: i18n("Show progress bar")
+        RowLayout {
+            Kirigami.FormData.label: i18n("Media player selector")
+            CheckBox {
+                id: showPlayerSelector
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: i18n(
+                    "Show the media player selector. It uses the same width as the former progress bar area."
+                )
+            }
         }
 
         ButtonGroup {
@@ -65,36 +67,22 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Song text alignment:")
             text: i18n("Left")
             enabled: fullViewSongTextVisible.checked
-            checked: fullViewSongTextAlignment.value == Qt.AlignLeft
-            onCheckedChanged: () => {
-                if (checked) {
-                    fullViewSongTextAlignment.value = Qt.AlignLeft
-                }
-            }
+            checked: fullViewSongTextAlignment.value === Qt.AlignLeft
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignLeft
             ButtonGroup.group: fullViewSongTextAlignment
         }
-
         RadioButton {
             text: i18n("Center")
             enabled: fullViewSongTextVisible.checked
-            checked: fullViewSongTextAlignment.value == Qt.AlignHCenter
-            onCheckedChanged: () => {
-                if (checked) {
-                    fullViewSongTextAlignment.value = Qt.AlignHCenter
-                }
-            }
+            checked: fullViewSongTextAlignment.value === Qt.AlignHCenter
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignHCenter
             ButtonGroup.group: fullViewSongTextAlignment
         }
-
         RadioButton {
             text: i18n("Right")
             enabled: fullViewSongTextVisible.checked
-            checked: fullViewSongTextAlignment.value == Qt.AlignRight
-            onCheckedChanged: () => {
-                if (checked) {
-                    fullViewSongTextAlignment.value = Qt.AlignRight
-                }
-            }
+            checked: fullViewSongTextAlignment.value === Qt.AlignRight
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignRight
             ButtonGroup.group: fullViewSongTextAlignment
         }
 
@@ -105,129 +93,63 @@ KCM.SimpleKCM {
 
         ButtonGroup {
             id: fullViewSongTextPosition
-            property int value: Full.SongAndArtistTextPosition.UnderProgressBar
+            property int value: Full.SongAndArtistTextPosition.UnderPlayerSelector
         }
 
         RadioButton {
             Kirigami.FormData.label: i18n("Song text position:")
-            text: i18n("Above progress bar")
+            text: i18n("Above media player selector")
             enabled: fullViewSongTextVisible.checked
-            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.AboveProgressBar
-            onCheckedChanged: () => {
-                if (checked) {
-                    fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.AboveProgressBar
-                }
-            }
+            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.AbovePlayerSelector
+            onCheckedChanged: if (checked) fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.AbovePlayerSelector
             ButtonGroup.group: fullViewSongTextPosition
         }
-
         RadioButton {
-            text: i18n("Under progress bar")
+            text: i18n("Under media player selector")
             enabled: fullViewSongTextVisible.checked
-            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.UnderProgressBar
-            onCheckedChanged: () => {
-                if (checked) {
-                    fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.UnderProgressBar
-                }
-            }
+            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.UnderPlayerSelector
+            onCheckedChanged: if (checked) fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.UnderPlayerSelector
             ButtonGroup.group: fullViewSongTextPosition
-        }
-
-        CheckBox {
-            id: fullViewVolumeControlVisible
-            Kirigami.FormData.label: i18n("Show volume control")
-        }
-
-        CheckBox {
-            id: fullViewShuffleVisible
-            Kirigami.FormData.label: i18n("Show shuffle control")
-        }
-
-        CheckBox {
-            id: fullViewPlaybackControlsVisible
-            Kirigami.FormData.label: i18n("Show playback controls")
-        }
-
-        CheckBox {
-            id: fullViewLoopVisible
-            Kirigami.FormData.label: i18n("Show loop control")
-        }
-
-        RowLayout {
-            Kirigami.FormData.label: i18n("Fill available space with playback controls")
-            CheckBox {
-                id: fullViewPlaybackControlsFillWidth
-            }
-            Kirigami.ContextualHelpButton {
-                toolTipText: i18n(
-                    "When enabled, playback controls are spread across the full width of the widget. When disabled, they are grouped together in the center."
-                )
-            }
-        }
-
-        SpinBox {
-            id: fullViewMinWidth
-            Kirigami.FormData.label: i18n("Minimum resizable width:")
-            from: 100
-            to: fullViewMaxWidth.value
-            stepSize: 10
-        }
-
-        SpinBox {
-            id: fullViewMaxWidth
-            Kirigami.FormData.label: i18n("Maximum resizable width:")
-            from: fullViewMinWidth.value
-            to: 2000
-            stepSize: 10
-        }
-
-        RowLayout{
-            Kirigami.FormData.label: i18n("Show media player selector")
-            CheckBox {
-                id: showPlayerSelector
-            }
-            Kirigami.ContextualHelpButton {
-                toolTipText: i18n(
-                    "Disabled when a preferred player is selected under General > Playback Source. Only works when 'Choose automatically' is selected."
-                )
-            }
         }
 
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: i18n("Album cover")
+            Kirigami.FormData.label: i18n("Album cover / Photo folder")
         }
 
         RowLayout {
-            Kirigami.FormData.label: i18n("Album placeholder:")
+            Kirigami.FormData.label: i18n("Photo folder:")
 
             Button {
                 text: i18n("Choose…")
-                icon.name: "settings-configure"
-                onClicked: {
-                    albumPlaceholderDialog.open()
-                }
+                icon.name: "folder-open"
+                onClicked: photoFolderDialog.open()
             }
 
             Button {
                 text: i18n("Clear")
                 icon.name: "edit-delete"
-                visible: albumPlaceholderDialog.value
-                onClicked: {
-                    albumPlaceholderDialog.value = ""
-                }
+                visible: photoFolderDialog.value
+                onClicked: photoFolderDialog.value = ""
             }
         }
 
-        ColumnLayout {
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: albumPlaceholderDialog.value
-            Image {
-                Layout.preferredWidth: 200
-                Layout.preferredHeight: 200
-                Layout.alignment: Qt.AlignHCenter
-                source: albumPlaceholderDialog.value
-            }
+        Label {
+            visible: photoFolderDialog.value
+            text: photoFolderDialog.value
+            elide: Text.ElideMiddle
+            Layout.maximumWidth: 25 * Kirigami.Units.gridUnit
+        }
+
+        CheckBox {
+            id: photoFolderWhilePlaying
+            enabled: !!photoFolderDialog.value
+            Kirigami.FormData.label: i18n("Use photo folder while media is playing")
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Album cover")
         }
 
         CheckBox {
@@ -244,7 +166,6 @@ KCM.SimpleKCM {
             stepSize: 2
             Kirigami.FormData.label: i18n("Album cover radius:")
         }
-
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
             Kirigami.FormData.label: i18n("Song Text Customization")
@@ -470,21 +391,11 @@ KCM.SimpleKCM {
             id: fullAlbumCoverAsBackground
             text: i18n("(Experimental feature)")
         }
-
-        Kirigami.Separator {
-            Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: i18n("Hover tooltip")
-        }
-
-        CheckBox{
-            id: hideCanBeRaisedTooltip
-            Kirigami.FormData.label: i18n("Hide album art tooltip")
-        }
     }
 
-    QtDialogs.FileDialog {
-        id: albumPlaceholderDialog
-        property var value: null
-        onAccepted: value = selectedFile
+    QtDialogs.FolderDialog {
+        id: photoFolderDialog
+        property string value: ""
+        onAccepted: value = selectedFolder.toString()
     }
 }
