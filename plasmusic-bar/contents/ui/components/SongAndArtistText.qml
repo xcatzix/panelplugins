@@ -34,6 +34,7 @@ Item {
 
     property string noMediaText: widget.displayText
     property bool showCustomTextWithMedia: plasmoid.configuration.showCustomTextWithMedia
+    property bool showSecondLine: true
 
     property int titlePosition: SongAndArtistText.TextPosition.FirstLine
     property int artistsPosition: SongAndArtistText.TextPosition.FirstLine
@@ -96,7 +97,7 @@ Item {
         ScrollingText {
             Layout.alignment: textAlignment
 
-            visible: text.length !== 0
+            visible: root.showSecondLine && text.length !== 0
 
             font: root.textFont
             maxWidth: root.maxWidth !== undefined ? root.maxWidth : root.width

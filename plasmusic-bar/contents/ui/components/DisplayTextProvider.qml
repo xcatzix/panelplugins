@@ -30,7 +30,7 @@ QtObject {
         onNewData: function(sourceName, data) {
             const stdout = data["stdout"] || ""
             const exitCode = data["exit code"]
-            root.fileText = exitCode === 0 ? stdout.trim() : ""
+            root.fileText = exitCode === 0 ? stdout.replace(/\r\n?/g, "\n").trim() : ""
             disconnectSource(sourceName)
 
             if (exitCode !== 0)

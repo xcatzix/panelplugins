@@ -7,7 +7,7 @@ import org.kde.kirigami as Kirigami
 // barCount: int   - 跳动的柱子数量（默认 5）
 // barWidth: real  - 单根柱子宽度（默认 2.5）
 // barHeight: real - 柱子基准高度（默认 16，错落在此基础上变化）
-// spacing: real   - 柱子间距（file:///home/giqorg/Share/UploadGithup/plasmusic-soundbars-modified/contents
+// spacing: real   - 柱子间距
 Item {
     id: root
 
@@ -19,17 +19,8 @@ Item {
     // 柱子的颜色，默认跟随主题文字色；compact 页可传入动态前景色
     property color color: Kirigami.Theme.textColor
 
-    signal clicked()
-
     implicitWidth: row.implicitWidth
     implicitHeight: parent.height > 0 ? parent.height : Kirigami.Units.iconSizes.medium
-
-    // 点击跳动条 = 播放/暂停（与播放按钮等效）
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.clicked()
-    }
 
     Row {
         id: row
@@ -45,7 +36,7 @@ Item {
                 id: bar
 
                 // 每根柱子一个高度系数，制造错落感
-                readonly property var _factors: [0.75, 1.15, 0.6, 1, 0.85, 0.7, 1.1, 0.65]
+                readonly property var _factors: [0.75, 1.15, 0.8, 1.2, 0.85, 0.7, 1.1, 0.65]
 
                 width: root.barWidth
                 height: root.barHeight * _factors[index % _factors.length]

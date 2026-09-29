@@ -1,6 +1,7 @@
 import "./components"
 import Qt5Compat.GraphicalEffects
 import QtQuick
+import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents3
@@ -9,6 +10,13 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.private.mpris as Mpris
 
 Item {
+    // Compact is divided into three independent click regions:
+    //   1. text      -> text popup
+    //   2. soundbars -> no click action
+    //   3. icon      -> Full
+    // These MouseAreas are above the generic panel MouseArea so the three
+    // regions do not trigger the old "toggle Full" behavior.
+
     id: compact
 
     readonly property bool horizontal: widget.formFactor === PlasmaCore.Types.Horizontal
@@ -23,7 +31,7 @@ Item {
     readonly property color backgroundColorFromImage: Kirigami.ColorUtils.tintWithAlpha(imageColor, "black", 0.5)
     property color backgroundColor: useImageColors ? backgroundColorFromImage : "transparent"
     readonly property var backgroundColorBrightness: Kirigami.ColorUtils.brightnessForColor(backgroundColor)
-    readonly property color contrastColor: backgroundColorBrightness === Kirigami.ColorUtils.Dark ? "white" : "black"
+    readonly property color contrastColor: backgroundColorBrightness === Kirigami.ColorUtils.Dark ? "white" : "#1a1a1a"
     readonly property color foregroundColorFromImage: Kirigami.ColorUtils.tintWithAlpha(imageColor, contrastColor, 0.6)
     property color foregroundColor: useImageColors ? foregroundColorFromImage : Kirigami.Theme.textColor
 
@@ -47,7 +55,7 @@ Item {
                 id: progress
 
                 // color: foregroundColor
-                color: "#86d4fe"
+                color: "#82c7ff"
                 height: horizontal ? parent.height : parent.height * (player.songPosition / player.songLength)
                 width: horizontal ? parent.width * (player.songPosition / player.songLength) : parent.width
                 visible: plasmoid.configuration.mediaProgressInPanel
@@ -167,6 +175,7 @@ Item {
                     artists: player.artists
                     album: player.album
                     textAlignment: songGrid.textAlignment
+                    showSecondLine: false
                     truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
                     opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1 : 0.75
                 }
@@ -185,6 +194,8 @@ Item {
         SoundBars {
             id: soundBars
 
+            // SoundBars is a display-only region for now.
+            visible: plasmoid.configuration.soundBarsInPanel
             playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
         }
@@ -207,6 +218,89 @@ Item {
             }
         }
 
+    }
+
+    Controls.Popup {
+        id: compactTextPopup
+
+        width: 360
+        height: Math.min(180, Math.max(70, compactTextEdit.implicitHeight + 28))
+        padding: 12
+        modal: false
+        focus: false
+        closePolicy: Controls.Popup.CloseOnEscape | Controls.Popup.CloseOnPressOutside
+        onOpened: {
+            const p = compact.mapToItem(compactTextPopup.parent, 0, compact.height);
+            x = Math.max(0, p.x + (compact.width - width) / 2);
+            y = p.y;
+            compactTextEdit.forceActiveFocus();
+        }
+
+        background: Rectangle {
+            radius: 8
+            color: Kirigami.Theme.backgroundColor
+            border.color: Kirigami.Theme.separatorColor
+            border.width: 1
+        }
+
+        contentItem: Controls.ScrollView {
+            clip: true
+
+            TextEdit {
+                id: compactTextEdit
+
+                width: compactTextPopup.availableWidth
+                text: widget.displayText
+                textFormat: TextEdit.AutoText
+                readOnly: true
+                selectByMouse: true
+                wrapMode: TextEdit.Wrap
+                color: Kirigami.Theme.textColor
+                font: baseFont
+                padding: 0
+            }
+
+        }
+
+    }
+
+    MouseArea {
+        id: compactTextClickArea
+
+        visible: songGrid.visible
+        anchors.fill: songGrid
+        z: 100
+        acceptedButtons: Qt.LeftButton
+        onClicked: {
+            mouse.accepted = true;
+            compactTextPopup.open();
+        }
+    }
+
+    MouseArea {
+        id: compactSoundBarsClickArea
+
+        visible: soundBars.visible
+        anchors.fill: soundBars
+        z: 100
+        acceptedButtons: Qt.LeftButton
+        // Deliberately empty: SoundBars has no click interaction yet.
+        onClicked: {
+            mouse.accepted = true;
+        }
+    }
+
+    MouseArea {
+        id: compactIconClickArea
+
+        visible: panelIcon.visible
+        anchors.fill: panelIcon
+        z: 100
+        acceptedButtons: Qt.LeftButton
+        onClicked: {
+            mouse.accepted = true;
+            widget.expanded = true;
+        }
     }
 
     Behavior on backgroundColor {
