@@ -11,4 +11,4 @@
  -- Using theme on desktop or panel...  
  
 --注: 现已将plasmusic-bar和lyrics-on-panel-source合并到org.kde.plasma.plasMusic中,   
-      可以直接合并的plasMusic,增加了API页面,自我可以设置查看内容,总之功能更多.
+      可以直接使用合并的plasMusic,增加了API页面,自我可以设置查看内容,总之功能更多.
