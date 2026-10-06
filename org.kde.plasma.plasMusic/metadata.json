@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            { "Email": "3949745980@qq.com", "Name": "xcatzix" },
+            { "Email": "catterina.claudio@gmail.com", "Name": "Claudio Catterina (plasmusic-toolbar)" },
+            { "Email": "anicaazhu@gmail.com", "Name": "Anicaa Zhu (lyrics-on-panel)" }
+        ],
+        "Description": "Panel lyrics, track info, sound bars, playback controls and a configurable player icon, with a Full view that has photo, text and HTML/TXT API areas",
+        "BugReportUrl": "https://github.com/xcatzix",
+        "Website": "https://github.com/xcatzix",
+        "Icon": "view-media-track",
+        "Id": "org.kde.plasma.plasMusic",
+        "License": "GPL3",
+        "Name": "plasMusic",
+        "Version": "5.1.3",
+        "Category": "Multimedia"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0.4",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.multimediacontrols"
+    ]
+}

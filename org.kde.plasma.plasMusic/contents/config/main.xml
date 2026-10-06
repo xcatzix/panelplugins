@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="choosePlayerAutomatically" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="preferredPlayerIdentity" type="String">
+            <default></default>
+        </entry>
+        <entry name="useCustomFont" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="customFont" type="Font">
+            <default></default>
+        </entry>
+        <entry name="showWhenNoMedia" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="noMediaText" type="String">
+            <default>No media found</default>
+        </entry>
+        <entry name="showCustomTextWithMedia" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="usePlasMtextFile" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="lyricsEnabled" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="lyricsOffsetMs" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="lyricInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="separatorInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="infoInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="soundBarsInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="iconInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="controlsInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="playerIconInPanel" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="lyricMaxWidth" type="Int">
+            <default>150</default>
+        </entry>
+        <entry name="lyricMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="infoWidth" type="Int">
+            <default>120</default>
+        </entry>
+        <entry name="infoMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="soundBarsWidth" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="soundBarsMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="iconWidth" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="iconMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="controlsWidth" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="controlsMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="playerIconWidth" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="playerIconMargin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="infoShowArtist" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="infoShowTitle" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="infoShowAlbum" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="panelIcon" type="String">
+            <default>view-media-track</default>
+        </entry>
+        <entry name="useAlbumCoverAsPanelIcon" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="fallbackToIconWhenArtNotAvailable" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="albumCoverRadius" type="Int">
+            <default>30</default>
+        </entry>
+        <entry name="panelIconSizeRatio" type="Double">
+            <default>0.75</default>
+        </entry>
+        <entry name="playerIconSource" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="playerIconBuiltin" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="playerIconFile" type="String">
+            <default></default>
+        </entry>
+        <entry name="playerIconTheme" type="String">
+            <default>multimedia-player</default>
+        </entry>
+        <entry name="playerIconRadius" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="playerIconSizeRatio" type="Double">
+            <default>0.75</default>
+        </entry>
+        <entry name="playerProgramPath" type="String">
+            <default></default>
+        </entry>
+        <entry name="controlSizeRatio" type="Double">
+            <default>0.6</default>
+        </entry>
+        <entry name="compactTruncatedTextStyle" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="textScrollingEnabled" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="textScrollingSpeed" type="Int">
+            <default>3</default>
+        </entry>
+        <entry name="textScrollingBehaviour" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="pauseTextScrollingWhileMediaIsNotPlaying" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="textScrollingResetOnPause" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="mediaProgressInPanel" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="colorsFromAlbumCover" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="panelBackgroundRadius" type="Int">
+            <default>30</default>
+        </entry>
+        <entry name="lyricsWindowWidth" type="Int">
+            <default>340</default>
+        </entry>
+        <entry name="lyricsWindowHeight" type="Int">
+            <default>300</default>
+        </entry>
+        <entry name="lyricsWindowPadding" type="Int">
+            <default>8</default>
+        </entry>
+        <entry name="lyricsWindowRadius" type="Int">
+            <default>8</default>
+        </entry>
+        <entry name="desktopWidgetBg" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="photoFolder" type="String">
+            <default></default>
+        </entry>
+        <entry name="photoFolderWhilePlaying" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="fullViewTextScrollingSpeed" type="Int">
+            <default>3</default>
+        </entry>
+        <entry name="fullTitlePosition" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="fullArtistsPosition" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="fullAlbumPosition" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="fullHideAlbumForSingles" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="fullAlbumCoverAsBackground" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="fullViewThumbnailVisible" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="fullViewSongTextVisible" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="fullViewSongTextAlignment" type="Int">
+            <default>4</default>
+        </entry>
+        <entry name="fullViewSongTextPosition" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="fullAlbumCoverRounded" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="fullAlbumCoverRadius" type="Int">
+            <default>4</default>
+        </entry>
+        <entry name="showPlayerSelector" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="fullMargin" type="Int">
+            <default>10</default>
+        </entry>
+        <entry name="detailsWidth" type="Int">
+            <default>340</default>
+        </entry>
+        <entry name="detailsHeight" type="Int">
+            <default>220</default>
+        </entry>
+        <entry name="detailsPadding" type="Int">
+            <default>12</default>
+        </entry>
+        <entry name="detailsRadius" type="Int">
+            <default>8</default>
+        </entry>
+        <entry name="regionBEnabled" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="htmlApiUrl" type="String">
+            <default></default>
+        </entry>
+        <entry name="htmlApiRefreshMinutes" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="regionBWidth" type="Int">
+            <default>340</default>
+        </entry>
+        <entry name="regionBHeight" type="Int">
+            <default>180</default>
+        </entry>
+        <entry name="regionBPadding" type="Int">
+            <default>12</default>
+        </entry>
+        <entry name="regionBRadius" type="Int">
+            <default>8</default>
+        </entry>
+        <entry name="regionBFullWidth" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="detailsFullWidth" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="regionBBorderWidth" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="regionBBorderColor" type="Color">
+            <default>#80808080</default>
+        </entry>
+        <entry name="detailsBorderWidth" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="detailsBorderColor" type="Color">
+            <default>#80808080</default>
+        </entry>
+        <entry name="lyricsWindowBorderWidth" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="lyricsWindowBorderColor" type="Color">
+            <default>#80808080</default>
+        </entry>
+        <entry name="soundBarsHeight" type="Int">
+            <default>16</default>
+        </entry>
+    </group>
+</kcfg>
