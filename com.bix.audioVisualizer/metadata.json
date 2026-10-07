@@ -1,0 +1,27 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "3949745980@qq.com",
+        "Name": "xcatzix"
+      }
+    ],
+    "BugReportUrl": "https://github.com/xcatzix",
+    "Category": "System Information",
+    "Description": "Audio visualizer powered by CAVA",
+    "Description[fr]": "Visualiseur audio propulsé par CAVA",
+    "Description[nl]": "Audiovisualisatie, gebaseerd op CAVA",
+    "Description[ru]": "Аудио-визуализатор на базе CAVA",
+    "Description[sv]": "Ljudvisualisering som använder CAVA",
+    "Description[zh_CN]": "基于CAVA的音频可视化器",
+    "EnabledByDefault": false,
+    "Icon": "waveform-symbolic",
+    "Id": "com.bix.audioVisualizer",
+    "License": "GPL-3.0",
+    "Name": "audioVisualizer",
+    "Version": "3.6.1",
+    "Website": "https://github.com/xcatzix"
+  },
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
