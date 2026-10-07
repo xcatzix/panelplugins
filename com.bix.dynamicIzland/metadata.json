@@ -1,0 +1,19 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Name": "xcatzix",
+        "URL": "github.com/xcatzix"
+      }
+    ],
+    "Category": "Date and Time",
+    "Description": "Dynamic-island style capsule for the Plasma panel: clock, system usage, notifications, downloads, screen sharing and IDE builds.",
+    "Icon": "notifications",
+    "Id": "com.bix.dynamicIzland",
+    "License": "MIT",
+    "Name": "dynamicIzland",
+    "Version": "1.1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
