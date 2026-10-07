@@ -11,7 +11,7 @@
 ```terminal
 >$cp -r /pAth/to/your/downloaded/com.bix.* ${HOME}/.local/share/plasma/plasmoids/
 ```
-And then read README.md in com.bix.* package if there is it.  
+And then read README.md in com.bix.* package if there is.  
     
 ## panelplugins  
  -- kde plasma desktop panel plugins, widget and so on...  
