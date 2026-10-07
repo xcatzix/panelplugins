@@ -1,0 +1,573 @@
+import "../components"
+import ".."
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
+import org.kde.kcmutils as KCM
+import org.kde.kquickcontrols as KQuickControls
+import QtQuick.Dialogs as QtDialogs
+import org.kde.plasma.core as PlasmaCore
+
+
+KCM.SimpleKCM {
+    id: fullConfigPage
+
+    // Plasma 6 may pass config default values to every config page.
+    property bool cfg_useSongTextFixedWidthDefault: false
+    Layout.preferredWidth: form.implicitWidth;
+
+    property alias cfg_desktopWidgetBg: desktopWidgetBackgroundRadio.value
+    property alias cfg_photoFolder: photoFolderDialog.value
+    property alias cfg_photoFolderWhilePlaying: photoFolderWhilePlaying.checked
+    property alias cfg_fullViewTextScrollingSpeed: fullViewTextScrollingSpeed.value
+    property alias cfg_fullArtistsPosition: fullArtistsPosition.value
+    property alias cfg_fullTitlePosition: fullTitlePosition.value
+    property alias cfg_fullAlbumPosition: fullAlbumPosition.value
+    property alias cfg_fullAlbumCoverAsBackground: fullAlbumCoverAsBackground.checked
+    property alias cfg_fullHideAlbumForSingles: fullHideAlbumForSingles.checked
+    property alias cfg_fullViewThumbnailVisible: fullViewThumbnailVisible.checked
+    property alias cfg_fullViewSongTextVisible: fullViewSongTextVisible.checked
+    property alias cfg_fullViewSongTextAlignment: fullViewSongTextAlignment.value
+    property alias cfg_fullViewSongTextPosition: fullViewSongTextPosition.value
+    property alias cfg_showPlayerSelector: showPlayerSelector.checked
+    property alias cfg_fullAlbumCoverRounded: fullAlbumCoverRounded.checked
+    property alias cfg_fullAlbumCoverRadius: fullAlbumCoverRadius.value
+    property alias cfg_regionBEnabled: regionBEnabled.checked
+    property alias cfg_htmlApiUrl: htmlApiUrl.text
+    property alias cfg_htmlApiRefreshMinutes: htmlApiRefreshMinutes.value
+    property alias cfg_regionBFullWidth: regionBFullWidth.checked
+    property alias cfg_regionBWidth: regionBWidth.value
+    property alias cfg_regionBBorderWidth: regionBBorderWidth.value
+    property alias cfg_regionBBorderColor: regionBBorderColor.color
+    property alias cfg_detailsFullWidth: detailsFullWidth.checked
+    property alias cfg_detailsBorderWidth: detailsBorderWidth.value
+    property alias cfg_detailsBorderColor: detailsBorderColor.color
+    property alias cfg_regionBHeight: regionBHeight.value
+    property alias cfg_regionBPadding: regionBPadding.value
+    property alias cfg_regionBRadius: regionBRadius.value
+    property alias cfg_fullMargin: fullMargin.value
+    property alias cfg_detailsWidth: detailsWidth.value
+    property alias cfg_detailsHeight: detailsHeight.value
+    property alias cfg_detailsPadding: detailsPadding.value
+    property alias cfg_detailsRadius: detailsRadius.value
+
+    Kirigami.FormLayout {
+        id: form
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Layout")
+        }
+
+        CheckBox {
+            id: fullViewThumbnailVisible
+            Kirigami.FormData.label: i18n("Show album cover / photo")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Media player selector")
+            CheckBox {
+                id: showPlayerSelector
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: i18n(
+                    "Show the media player selector. It uses the same width as the former progress bar area."
+                )
+            }
+        }
+
+        ButtonGroup {
+            id: fullViewSongTextAlignment
+            property int value: Qt.AlignHCenter
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Song text alignment:")
+            text: i18n("Left")
+            enabled: fullViewSongTextVisible.checked
+            checked: fullViewSongTextAlignment.value === Qt.AlignLeft
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignLeft
+            ButtonGroup.group: fullViewSongTextAlignment
+        }
+        RadioButton {
+            text: i18n("Center")
+            enabled: fullViewSongTextVisible.checked
+            checked: fullViewSongTextAlignment.value === Qt.AlignHCenter
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignHCenter
+            ButtonGroup.group: fullViewSongTextAlignment
+        }
+        RadioButton {
+            text: i18n("Right")
+            enabled: fullViewSongTextVisible.checked
+            checked: fullViewSongTextAlignment.value === Qt.AlignRight
+            onCheckedChanged: if (checked) fullViewSongTextAlignment.value = Qt.AlignRight
+            ButtonGroup.group: fullViewSongTextAlignment
+        }
+
+        CheckBox {
+            id: fullViewSongTextVisible
+            Kirigami.FormData.label: i18n("Show song text")
+        }
+
+        ButtonGroup {
+            id: fullViewSongTextPosition
+            property int value: Full.SongAndArtistTextPosition.UnderPlayerSelector
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Song text position:")
+            text: i18n("Above media player selector")
+            enabled: fullViewSongTextVisible.checked
+            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.AbovePlayerSelector
+            onCheckedChanged: if (checked) fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.AbovePlayerSelector
+            ButtonGroup.group: fullViewSongTextPosition
+        }
+        RadioButton {
+            text: i18n("Under media player selector")
+            enabled: fullViewSongTextVisible.checked
+            checked: fullViewSongTextPosition.value === Full.SongAndArtistTextPosition.UnderPlayerSelector
+            onCheckedChanged: if (checked) fullViewSongTextPosition.value = Full.SongAndArtistTextPosition.UnderPlayerSelector
+            ButtonGroup.group: fullViewSongTextPosition
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Album cover / Photo folder")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Photo folder:")
+
+            Button {
+                text: i18n("Choose…")
+                icon.name: "folder-open"
+                onClicked: photoFolderDialog.open()
+            }
+
+            Button {
+                text: i18n("Clear")
+                icon.name: "edit-delete"
+                visible: photoFolderDialog.value
+                onClicked: photoFolderDialog.value = ""
+            }
+        }
+
+        Label {
+            visible: photoFolderDialog.value
+            text: photoFolderDialog.value
+            elide: Text.ElideMiddle
+            Layout.maximumWidth: 25 * Kirigami.Units.gridUnit
+        }
+
+        CheckBox {
+            id: photoFolderWhilePlaying
+            enabled: !!photoFolderDialog.value
+            Kirigami.FormData.label: i18n("Use photo folder while media is playing")
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Album cover")
+        }
+
+        CheckBox {
+            Kirigami.FormData.label: i18n("Round album cover")
+            id: fullAlbumCoverRounded
+        }
+
+        Slider {
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            enabled: fullAlbumCoverRounded.checked
+            id: fullAlbumCoverRadius
+            from: 0
+            to: 100
+            stepSize: 5
+            Kirigami.FormData.label: i18n("Album cover corners (0 square - 100 round):")
+        }
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Song Text Customization")
+        }
+
+        // group for title
+
+        ButtonGroup {
+            id: fullTitlePosition
+            property int value: SongAndArtistText.TextPosition.FirstLine
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Song title position:")
+            text: i18n("Hidden")
+            checked: fullTitlePosition.value == SongAndArtistText.TextPosition.Hidden
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullTitlePosition.value = SongAndArtistText.TextPosition.Hidden
+                }
+            }
+            ButtonGroup.group: fullTitlePosition
+        }
+
+        RadioButton {
+            text: i18n("First line")
+            checked: fullTitlePosition.value == SongAndArtistText.TextPosition.FirstLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullTitlePosition.value = SongAndArtistText.TextPosition.FirstLine
+                }
+            }
+            ButtonGroup.group: fullTitlePosition
+        }
+
+        RadioButton {
+            text: i18n("Second line")
+            checked: fullTitlePosition.value == SongAndArtistText.TextPosition.SecondLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullTitlePosition.value = SongAndArtistText.TextPosition.SecondLine
+                }
+            }
+            ButtonGroup.group: fullTitlePosition
+        }
+
+
+        // group for artists
+
+        Item {
+            // adds spacing between the groups
+            height: 0.5 * Kirigami.Units.gridUnit
+        }
+
+        ButtonGroup {
+            id: fullArtistsPosition
+            property int value: SongAndArtistText.TextPosition.SecondLine
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Artists position:")
+            text: i18n("Hidden")
+            checked: fullArtistsPosition.value == SongAndArtistText.TextPosition.Hidden
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullArtistsPosition.value = SongAndArtistText.TextPosition.Hidden
+                }
+            }
+            ButtonGroup.group: fullArtistsPosition
+        }
+
+        RadioButton {
+            text: i18n("First line")
+            checked: fullArtistsPosition.value == SongAndArtistText.TextPosition.FirstLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullArtistsPosition.value = SongAndArtistText.TextPosition.FirstLine
+                }
+            }
+            ButtonGroup.group: fullArtistsPosition
+        }
+
+        RadioButton {
+            text: i18n("Second line")
+            checked: fullArtistsPosition.value == SongAndArtistText.TextPosition.SecondLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullArtistsPosition.value = SongAndArtistText.TextPosition.SecondLine
+                }
+            }
+            ButtonGroup.group: fullArtistsPosition
+        }
+
+        // group for album
+        Item {
+            // adds spacing between the groups
+            height: 0.5 * Kirigami.Units.gridUnit
+        }
+
+        ButtonGroup {
+            id: fullAlbumPosition
+            property int value: SongAndArtistText.TextPosition.SecondLine
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Album title position:")
+            text: i18n("Hidden")
+            checked: fullAlbumPosition.value == SongAndArtistText.TextPosition.Hidden
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullAlbumPosition.value = SongAndArtistText.TextPosition.Hidden
+                }
+            }
+            ButtonGroup.group: fullAlbumPosition
+        }
+
+        RadioButton {
+            text: i18n("First line")
+            checked: fullAlbumPosition.value == SongAndArtistText.TextPosition.FirstLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullAlbumPosition.value = SongAndArtistText.TextPosition.FirstLine
+                }
+            }
+            ButtonGroup.group: fullAlbumPosition
+        }
+
+        RadioButton {
+            text: i18n("Second line")
+            checked: fullAlbumPosition.value == SongAndArtistText.TextPosition.SecondLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullAlbumPosition.value = SongAndArtistText.TextPosition.SecondLine
+                }
+            }
+            ButtonGroup.group: fullAlbumPosition
+        }
+
+        RowLayout{
+            Kirigami.FormData.label: i18n("Hide album name for singles:")
+            CheckBox{
+                id: fullHideAlbumForSingles
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: i18n(
+                    "If the album name and the track title match, the album name will be hidden."
+                )
+            }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Text scrolling")
+        }
+
+        Slider {
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            id: fullViewTextScrollingSpeed
+            from: 1
+            to: 10
+            stepSize: 1
+            Kirigami.FormData.label: i18n("Speed:")
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Region B (TXT / HTML from API)")
+        }
+
+        CheckBox {
+            id: regionBEnabled
+            Kirigami.FormData.label: i18n("Enable region B and its toggle button")
+        }
+
+        TextField {
+            id: htmlApiUrl
+            Kirigami.FormData.label: i18n("API URL:")
+            Layout.preferredWidth: 20 * Kirigami.Units.gridUnit
+            enabled: regionBEnabled.checked
+            placeholderText: "https://example.com/info.html"
+        }
+
+        SpinBox {
+            id: htmlApiRefreshMinutes
+            Kirigami.FormData.label: i18n("Auto refresh (minutes, 0 = off):")
+            enabled: regionBEnabled.checked
+            from: 0
+            to: 1440
+        }
+
+        CheckBox {
+            id: regionBFullWidth
+            Kirigami.FormData.label: i18n("Region B window uses the full width of the Full window")
+            enabled: regionBEnabled.checked
+        }
+
+        SpinBox {
+            id: regionBWidth
+            Kirigami.FormData.label: i18n("Region B window width (px):")
+            from: 100
+            to: 360
+            stepSize: 10
+            enabled: regionBEnabled.checked && !regionBFullWidth.checked
+        }
+
+        SpinBox {
+            id: regionBHeight
+            Kirigami.FormData.label: i18n("Region B window height (px):")
+            from: 60
+            to: 600
+            stepSize: 10
+            enabled: regionBEnabled.checked
+        }
+
+        SpinBox {
+            id: regionBPadding
+            Kirigami.FormData.label: i18n("Region B window margin (px):")
+            from: 0
+            to: 40
+            stepSize: 1
+            enabled: regionBEnabled.checked
+        }
+
+        Slider {
+            id: regionBRadius
+            Kirigami.FormData.label: i18n("Region B corners (0 square - 100 round):")
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            from: 0
+            to: 100
+            stepSize: 5
+        }
+
+        SpinBox {
+            id: regionBBorderWidth
+            Kirigami.FormData.label: i18n("Region B border width (px, 0 = none):")
+            from: 0
+            to: 10
+        }
+
+        KQuickControls.ColorButton {
+            id: regionBBorderColor
+            Kirigami.FormData.label: i18n("Region B border color:")
+            showAlphaChannel: true
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Windows and margins")
+        }
+
+        SpinBox {
+            id: fullMargin
+            Kirigami.FormData.label: i18n("Margin around photo and text (px):")
+            from: 0
+            to: 40
+            stepSize: 1
+        }
+
+        CheckBox {
+            id: detailsFullWidth
+            Kirigami.FormData.label: i18n("Text details window uses the full width of the Full window")
+        }
+
+        SpinBox {
+            id: detailsWidth
+            enabled: !detailsFullWidth.checked
+            Kirigami.FormData.label: i18n("Text details window width (px):")
+            from: 100
+            to: 360
+            stepSize: 10
+        }
+
+        SpinBox {
+            id: detailsHeight
+            Kirigami.FormData.label: i18n("Text details window height (px):")
+            from: 60
+            to: 600
+            stepSize: 10
+        }
+
+        SpinBox {
+            id: detailsPadding
+            Kirigami.FormData.label: i18n("Text details window margin (px):")
+            from: 0
+            to: 40
+            stepSize: 1
+        }
+
+        Slider {
+            id: detailsRadius
+            Kirigami.FormData.label: i18n("Text details corners (0 square - 100 round):")
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            from: 0
+            to: 100
+            stepSize: 5
+        }
+
+        SpinBox {
+            id: detailsBorderWidth
+            Kirigami.FormData.label: i18n("Text details border width (px, 0 = none):")
+            from: 0
+            to: 10
+        }
+
+        KQuickControls.ColorButton {
+            id: detailsBorderColor
+            Kirigami.FormData.label: i18n("Text details border color:")
+            showAlphaChannel: true
+        }
+
+        Label {
+            text: i18n("Downloaded with curl to ~/.cache/plasMusic/htmlAPI.html. Opened by the music-note button; right-click the window to reload.")
+            wrapMode: Text.Wrap
+            opacity: 0.7
+            Layout.maximumWidth: 25 * Kirigami.Units.gridUnit
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Background")
+        }
+
+        ButtonGroup {
+            id: desktopWidgetBackgroundRadio
+            property int value: PlasmaCore.Types.StandardBackground
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Background (desktop widget only):")
+            RadioButton {
+                text: i18n("Standard")
+                checked: desktopWidgetBackgroundRadio.value == PlasmaCore.Types.StandardBackground
+                onCheckedChanged: () => {
+                    if (checked) {
+                        desktopWidgetBackgroundRadio.value = PlasmaCore.Types.StandardBackground
+                    }
+                }
+                ButtonGroup.group: desktopWidgetBackgroundRadio
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: (
+                    "The standard background from the theme."
+                )
+            }
+        }
+        RadioButton {
+            text: i18n("Transparent")
+            checked: desktopWidgetBackgroundRadio.value == PlasmaCore.Types.NoBackground
+            onCheckedChanged: () => {
+                if (checked) {
+                    desktopWidgetBackgroundRadio.value = PlasmaCore.Types.NoBackground
+                }
+            }
+            ButtonGroup.group: desktopWidgetBackgroundRadio
+        }
+        RowLayout {
+            RadioButton {
+                text: i18n("Transparent (Shadow content)")
+                checked: desktopWidgetBackgroundRadio.value == PlasmaCore.Types.ShadowBackground
+                onCheckedChanged: () => {
+                    if (checked) {
+                        desktopWidgetBackgroundRadio.value = PlasmaCore.Types.ShadowBackground
+                    }
+                }
+                ButtonGroup.group: desktopWidgetBackgroundRadio
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: (
+                    "The applet won't have a background but a drop shadow of its content done via a shader. The text color will also invert."
+                )
+            }
+        }
+
+        CheckBox {
+            Kirigami.FormData.label: i18n("Use album cover as background")
+            id: fullAlbumCoverAsBackground
+            text: i18n("(Experimental feature)")
+        }
+    }
+
+    QtDialogs.FolderDialog {
+        id: photoFolderDialog
+        property string value: ""
+        onAccepted: value = selectedFolder.toString()
+    }
+}
